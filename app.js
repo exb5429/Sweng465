@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
+var homePageRouter = require('./routes/homePage');
 var usersRouter = require('./routes/users');
 var studyGuideRouter = require('./routes/studyGuide');
 var postQuestionRouter = require('./routes/postQuestion');
@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+app.use('/', homePageRouter);
 app.use('/users', usersRouter);
 app.use('/studyGuide', studyGuideRouter);
 app.use('/postQuestion', postQuestionRouter);
@@ -44,7 +44,7 @@ app.use(function(err, req, res, next) {
 
 app.get("/", async function(req,res){
 
-  res.render("index")
+  res.render("homePage")
 
 })
 
