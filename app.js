@@ -8,6 +8,7 @@ var homePageRouter = require('./routes/homePage');
 var usersRouter = require('./routes/users');
 var studyGuideRouter = require('./routes/studyGuide');
 var postQuestionRouter = require('./routes/postQuestion');
+var loginRouter = require('./routes/login');
 
 var app = express();
 
@@ -25,6 +26,7 @@ app.use('/', homePageRouter);
 app.use('/users', usersRouter);
 app.use('/studyGuide', studyGuideRouter);
 app.use('/postQuestion', postQuestionRouter);
+app.use('/login', loginRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -57,6 +59,12 @@ app.get("/studyGuide", async function(req,res){
 app.get("/postQuestion", async function(req,res){
 
   res.render("postQuestion")
+
+})
+
+app.get("/login", async function(req,res){
+
+  res.render("login")
 
 })
 
