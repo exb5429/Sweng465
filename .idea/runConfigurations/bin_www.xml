@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="bin\www" type="NodeJSConfigurationType" path-to-js-file="$PROJECT_DIR$/../Sweng465Proj/bin/www" working-dir="$PROJECT_DIR$/../Sweng465Proj">
-    <envs>
-      <env name="DEBUG" value="swengg411proj:*" />
-    </envs>
+  <configuration default="false" name="bin\www" type="NodeJSConfigurationType" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="bin/www" working-dir="$PROJECT_DIR$/../Sweng465Proj">
     <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSStartBrowserRunConfigurationExtension">
       <browser url="http://localhost:3000/" />
     </EXTENSION>
+    <envs>
+      <env name="DEBUG" value="swengg411proj:*" />
+    </envs>
     <method v="2" />
   </configuration>
 </component>

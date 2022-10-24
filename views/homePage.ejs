@@ -1,7 +1,34 @@
 <%- include('header.ejs') %>
+
+<style>
+  body {
+    background-color: #cdcccf;
+  }
+  .inner {
+    padding-left: 40px;
+  }
+  .section {
+    padding-top: 30px;
+    padding-bottom: 30px;
+  }
+  .text {
+    padding-bottom: 20px;
+  }
+  h1 {
+    padding-top: 20px;
+  }
+</style>
+
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <h1 class="inner">Welcome to Study Tool</h1>
+    <div class="inner section">
+      <p class="text">With Study Tool, you can collaborate with others to get answers for your questions.</p>
+      <a class="btn btn-dark" href="/postQuestion" style="width: 400px; ">Start here</a>
+    </div>
+    <div class="inner section">
+      <p class="text">After exploring and collaborating, you can build your own study guide.</p>
+      <a class="btn btn-dark" href="/postQuestion" style="width: 400px; ">Build it here</a>
+    </div>
   </body>
 <%- include('footer.ejs') %>
 

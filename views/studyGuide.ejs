@@ -1,13 +1,45 @@
 <%- include('header.ejs') %>
+
+<style>
+    body {
+        background-color: #cdcccf;
+    }
+    h1 {
+        padding-top: 20px;
+    }
+    .study {
+        padding-top: 20px;
+        padding-bottom: 20px;
+    }
+    .study-item {
+        width: 600px
+    }
+    .inner {
+        padding-left: 40px;
+    }
+</style>
+
     <body>
-        <h1>Study Guide</h1>
-        <p>Welcome to Your Study Guide</p>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">An item</li>
-            <li class="list-group-item">A second item</li>
-            <li class="list-group-item">A third item</li>
-            <li class="list-group-item">A fourth item</li>
-            <li class="list-group-item">And a fifth one</li>
-        </ul>
+        <h1 class="inner">Study Guide</h1>
+        <div class="inner">
+            <div class="study">
+                <ul class="list-group list-group-horizontal">
+                    <li class="list-group-item study-item">Question 1</li>
+                    <li class="list-group-item study-item">Answer 1</li>
+                </ul>
+            </div>
+            <div class="study">
+                <ul class="list-group list-group-horizontal">
+                    <li class="list-group-item study-item">Question 2</li>
+                    <li class="list-group-item study-item">Answer 2</li>
+                </ul>
+            </div>
+            <div class="study">
+                <ul class="list-group list-group-horizontal">
+                    <li class="list-group-item study-item">And so on...</li>
+                    <li class="list-group-item study-item">...</li>
+                </ul>
+            </div>
+        </div>
     </body>
-</html>
+<%- include('footer.ejs') %>

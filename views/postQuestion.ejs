@@ -1,13 +1,37 @@
 <%- include('header.ejs') %>
+
+<style>
+    body {
+        background-color: #cdcccf;
+    }
+    .inner {
+        padding-left: 40px;
+    }
+    h1 {
+        padding-top: 20px;
+    }
+</style>
+
 <body>
-<h1>Post Question</h1>
-<p>Post a Question</p>
-<ul class="list-group list-group-flush">
-    <li class="list-group-item">An item</li>
-    <li class="list-group-item">A second item</li>
-    <li class="list-group-item">A third item</li>
-    <li class="list-group-item">A fourth item</li>
-    <li class="list-group-item">And a fifth one</li>
-</ul>
+<h1 class="inner">Post Question</h1>
+<div class="inner">
+    <label for="exampleFormControlTextarea1" class="form-label">Select a subject</label>
+    <select class="form-select" aria-label="Default select example" style = "width: 800px">
+        <option selected>Choose an option from below</option>
+        <option value="1">Math</option>
+        <option value="2">Science</option>
+        <option value="3">English</option>
+        <option value="4">Social Studies</option>
+        <option value="5">Other</option>
+    </select>
+</div>
+<div class="mb-3 inner">
+    <label for="exampleFormControlTextarea1" class="form-label">Enter Your Question</label>
+    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" style = "width: 800px"></textarea>
+</div>
+<div class="inner">
+    <button type="button" class="btn btn-dark" style = "width: 400px; ">Submit</button>
+</div>
+
 </body>
 <%- include('footer.ejs') %>
