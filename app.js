@@ -12,6 +12,60 @@ var loginRouter = require('./routes/login');
 
 var app = express();
 
+/*
+var mongoose = require("mongoose");
+var Auth_passport = require('passport');
+var LocalStrategy = require('passport-local').Strategy;
+
+app.use(Auth_passport.initialize());
+
+var LoginSchema = mongoose.Schema({
+  username :String,
+  password :String
+});
+
+LoginSchema.methods.getUsername = function () {
+  return this.username;
+}
+
+LoginSchema.methods.getPassword = function () {
+  return this.password;
+}
+
+var LoginModel = mongoose.model("logins",LoginSchema);
+
+var currentUser;
+var currentPassword;
+var loggedIn = false;
+
+mongoose.connect("mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority");
+
+Auth_passport.use('local', new LocalStrategy(
+    async function (checkUsername, checkPassword, done) {
+      try {
+        console.log("Author Info to Display: " + checkUsername);
+        let User = await LoginModel.findOne({username: checkUsername,password: checkPassword});
+
+        if (User == undefined || User == null) {
+          console.log("Incorrect username or password");
+          return done(null, false, {message: 'Incorrect username or password.'});
+        }
+        else {
+          console.log("User: " + User.username + " has logged in");
+          loggedIn = true;
+          currentUser = User.username;
+          currentPassword = User.password;
+          return done(null, User);
+        }
+      } catch (e) {
+        console.log(e)
+      }
+    }
+));
+*/
+
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -71,6 +125,27 @@ app.get("/login", async function(req,res){
 app.get('*',function(req,response){
   response.status(404).render("error");
 })
+
+app.post("/login",Auth_passport.authenticate('local',{
+      successRedirect: '/account',
+      failureRedirect: '/login',
+      session: false
+    })
+);
+
+
+
+app.post("/signin", async function(req, res){
+  var newUser = req.body.newusername;
+  var newPassword = req.body.password;
+  let New = await LoginModel({username:newUser,password:newPassword});
+  New.save(function (err) {
+    if (err) return console.error(err);
+    console.log(newUser + " saved to logins collection.");
+  });
+  res.render("login");
+})
+
 
 
 app.listen(3000,function (req,resp) {
