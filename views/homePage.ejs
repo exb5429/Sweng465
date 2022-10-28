@@ -3,6 +3,7 @@
 <style>
   body {
     background-color: #cdcccf;
+
   }
   .inner {
     padding-left: 40px;
@@ -17,9 +18,15 @@
   h1 {
     padding-top: 20px;
   }
+  .center {
+    margin: auto;
+    width: 50%;
+    text-align: center;
+  }
 </style>
 
   <body>
+  <div class="center">
     <h1 class="inner">Welcome to Study Tool</h1>
     <div class="inner section">
       <p class="text">With Study Tool, you can collaborate with others to get answers for your questions.</p>
@@ -29,6 +36,7 @@
       <p class="text">After exploring and collaborating, you can build your own study guide.</p>
       <a class="btn btn-dark" href="/studyGuide" style="width: 400px; ">Build it here</a>
     </div>
+  </div>
   </body>
 <%- include('footer.ejs') %>
 

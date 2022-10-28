@@ -7,12 +7,19 @@
     .inner {
         padding-left: 40px;
     }
+
     h1 {
         padding-top: 20px;
+    }
+    .center {
+        margin: auto;
+        width: 50%;
+        text-align: center;
     }
 </style>
 
 <body>
+<div class="center">
 <h1 class="inner">Post Question</h1>
 <div class="inner">
     <label for="exampleFormControlTextarea1" class="form-label">Select a subject</label>
@@ -32,6 +39,6 @@
 <div class="inner">
     <button type="button" class="btn btn-dark" style = "width: 400px; ">Submit</button>
 </div>
-
+</div>
 </body>
 <%- include('footer.ejs') %>
