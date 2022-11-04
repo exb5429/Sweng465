@@ -49,7 +49,7 @@ mongoose.connect("mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrite
 Auth_passport.use('local', new LocalStrategy(
     async function (checkUsername, checkPassword, done) {
         try {
-            console.log("Author Info to Display: " + checkUsername);
+            console.log("Username: " + checkUsername);
             let User = await LoginModel.findOne({username: checkUsername,password: checkPassword});
 
             if (User == undefined || User == null) {
@@ -61,6 +61,7 @@ Auth_passport.use('local', new LocalStrategy(
                 loggedIn = true;
                 currentUser = User.username;
                 currentPassword = User.password;
+
                 return done(null, User);
             }
         } catch (e) {
@@ -88,9 +89,13 @@ app.get("/login", function (req, response){
     response.render("login");
 });
 
+app.get("/loginFail", function (req, response){
+    response.render("loginFail");
+});
+
 app.post("/login",Auth_passport.authenticate('local',{
-        successRedirect: '/account',
-        failureRedirect: '/login',
+        successRedirect: '/',
+        failureRedirect: '/loginFail',
         session: false
     })
 );
