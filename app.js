@@ -10,7 +10,7 @@ const bodyParser = require("body-parser");
 var LocalStrategy = require('passport-local').Strategy;
 var mongoose = require("mongoose");
 const http = require("http");
-
+const { MongoClient } = require("mongodb");
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(Auth_passport.initialize());
@@ -51,7 +51,8 @@ var loggedIn = false;
 var currentId;
 
 var QuestionSchema = mongoose.Schema({
-    //ID : Number,
+    id : Number,
+    askId : Number,
     username : String,
     question :String,
     subject :String
@@ -76,6 +77,7 @@ QuestionSchema.methods.getSubject = function () {
 var PostQuestionModel = mongoose.model("questions",QuestionSchema);
 
 mongoose.connect("mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority");
+
 
 Auth_passport.use('local', new LocalStrategy(
     async function (checkUsername, checkPassword, done) {
@@ -124,16 +126,37 @@ app.post("/postQuestion", async function(req, res){
         //var ID = req.body.ID;
         var subject = req.body.subject;
         var question = req.body.question;
-        let New = await PostQuestionModel({username:user/*,ID:ID*/, subject:subject, question:question});
-        New.save(function (err) {
-            if (err) return console.error(err);
-            console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
-                "collection. The question is as follows: " + question);
+        PostQuestionModel.countDocuments({}, function (err, count) {
+            idNum = count + 1;
+            let New = PostQuestionModel({
+                id: idNum,
+                askId: currentId,
+                username: currentUser,
+                question: question,
+                subject: subject
+            });
+
+            New.save(function (err) {
+                if (err) return console.error(err);
+                console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
+                    "collection. The question is as follows: " + question);
+            });
+
+            res.render("postQuestion", {accountName: currentUser});
+
+
         });
-        res.render("postQuestion");
     }
+    //     let New = await PostQuestionModel({username:user/*,ID:ID*/, subject:subject, question:question});
+    //     New.save(function (err) {
+    //         if (err) return console.error(err);
+    //         console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
+    //             "collection. The question is as follows: " + question);
+    //     });
+    //     res.render("postQuestion");
+    // }
     else {
-        console.log("Can not post question, because you are not logged in.");
+        alert("Log in")
     }
 })
 
@@ -154,10 +177,38 @@ app.get("/searchQuestion", function (req, response){
 app.post("/searchQuestion", async function(req, res){
     var subjectRequest = req.body.subject;
 
-    PostQuestionModel.countDocuments({ subject: subjectRequest },function(err,count){
-        for (let i=0; i < count; i++){
-            console.log(i)
+
+    PostQuestionModel.countDocuments({},function(err,count){
+        const uri = "mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority";
+        const client = new MongoClient(uri);
+        async function run() {
+            try {
+                await client.connect();
+                // database and collection code goes here
+                const db = client.db("test");
+                const coll = db.collection("questions");
+                // find code goes here
+                const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
+                //await cursor.forEach(console.log);
+                //const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
+                // iterate code goes here
+                await cursor.forEach(function(myDoc) {
+
+                    console.log(myDoc)
+                    var size = Object.keys(myDoc).length;
+                    res.header("searchQuestion", {accountName: currentUser, questionList: myDoc, size:size});
+
+
+
+
+                });
+            } finally {
+                // Ensures that the client will close when you finish/error
+                await client.close();
+            }
+
         }
+        run().catch(console.dir);
 
 
 
@@ -165,7 +216,6 @@ app.post("/searchQuestion", async function(req, res){
 
 
 
-    res.render("searchQuestion", {accountName: currentUser});
 
 
 
