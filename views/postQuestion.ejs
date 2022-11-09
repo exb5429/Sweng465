@@ -26,24 +26,31 @@
 <body>
 <div class="center font">
 <h1 class="inner">Post Question</h1>
+
+
+
+
+
+<form action="/postQuestion" method="post">
 <div class="inner">
-    <label for="exampleFormControlTextarea1" class="form-label">Select a subject</label>
-    <select class="form-select" aria-label="Default select example" style = "width: 800px">
-        <option selected>Choose an option from below</option>
-        <option value="1">Math</option>
-        <option value="2">Science</option>
-        <option value="3">English</option>
-        <option value="4">Social Studies</option>
-        <option value="5">Other</option>
+    <label for="subject" class="form-label">Select a subject</label>
+    <select class="form-select" aria-label="Default select example" style = "width: 800px" type="subject" id="subject" name="subject">
+        <option selected value=NULL>Choose an option from below</option>
+        <option value="Math">Math</option>
+        <option value="Science">Science</option>
+        <option value="English">English</option>
+        <option value="Social Studies">Social Studies</option>
+        <option value="Other">Other</option>
     </select>
 </div>
 <div class="mb-3 inner">
-    <label for="exampleFormControlTextarea1" class="form-label">Enter Your Question</label>
-    <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" style = "width: 800px"></textarea>
+    <label for="question" class="form-label">Enter Your Question</label>
+    <textarea class="form-control" id="question" rows="3" style = "width: 800px" type="question" name="question"></textarea>
 </div>
 <div class="inner">
-    <button type="button" class="btn btn-dark" style = "width: 400px; ">Submit</button>
+    <button type="submit" class="btn btn-dark" style = "width: 400px; ">Submit</button>
 </div>
+</form>
 </div>
 </body>
 <%- include('footer.ejs') %>

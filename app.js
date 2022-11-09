@@ -44,6 +44,31 @@ var currentUser;
 var currentPassword;
 var loggedIn = false;
 
+var QuestionSchema = mongoose.Schema({
+    //ID : Number,
+    username : String,
+    question :String,
+    subject :String
+});
+
+/*QuestionSchema.methods.getID = function () {
+    return this.ID;
+}*/
+
+QuestionSchema.methods.getUsername = function () {
+    return this.username;
+}
+
+QuestionSchema.methods.getQuestion = function () {
+    return this.question;
+}
+
+QuestionSchema.methods.getSubject = function () {
+    return this.subject;
+}
+
+var PostQuestionModel = mongoose.model("questions",QuestionSchema);
+
 mongoose.connect("mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority");
 
 Auth_passport.use('local', new LocalStrategy(
@@ -84,6 +109,25 @@ app.get("/studyGuide", function (req, response){
 app.get("/postQuestion", function (req, response){
     response.render("postQuestion");
 });
+
+app.post("/postQuestion", async function(req, res){
+    if (loggedIn) {
+        var user = currentUser;
+        //var ID = req.body.ID;
+        var subject = req.body.subject;
+        var question = req.body.question;
+        let New = await PostQuestionModel({username:user/*,ID:ID*/, subject:subject, question:question});
+        New.save(function (err) {
+            if (err) return console.error(err);
+            console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
+                "collection. The question is as follows: " + question);
+        });
+        res.render("postQuestion");
+    }
+    else {
+        console.log("Can not post question, because you are not logged in.");
+    }
+})
 
 app.get("/login", function (req, response){
     response.render("login");
