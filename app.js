@@ -105,11 +105,13 @@ app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, "/public")));
 
 app.get("/", function (req, response){
-    response.render("homePage", {accountName: currentUser});
+    response.render("homePage", {accountName: currentUser})
+
+
 });
 
 app.get("/studyGuide", function (req, response){
-    response.render("studyGuide", {accountName: currentUser});
+    response.render("studyGuide", {accountName: currentUser})
 });
 
 app.get("/postQuestion", function (req, response){
@@ -128,7 +130,7 @@ app.post("/postQuestion", async function(req, res){
             console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
                 "collection. The question is as follows: " + question);
         });
-        res.render("postQuestion", {accountName: currentUser});
+        res.render("postQuestion");
     }
     else {
         console.log("Can not post question, because you are not logged in.");
@@ -143,6 +145,32 @@ app.get("/loginFail", function (req, response){
     response.render("loginFail", {accountName: currentUser});
 });
 
+app.get("/searchQuestion", function (req, response){
+    response.render("searchQuestion", {
+        questions: PostQuestionModel, accountName: currentUser
+    });
+});
+
+app.post("/searchQuestion", async function(req, res){
+    var subjectRequest = req.body.subject;
+
+    PostQuestionModel.countDocuments({ subject: subjectRequest },function(err,count){
+        for (let i=0; i < count; i++){
+            console.log(i)
+        }
+
+
+
+    });
+
+
+
+    res.render("searchQuestion", {accountName: currentUser});
+
+
+
+
+});
 app.post("/login",Auth_passport.authenticate('local',{
         successRedirect: '/',
         failureRedirect: '/loginFail',
