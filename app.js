@@ -45,7 +45,7 @@ LoginSchema.methods.getPassword = function () {
 
 var LoginModel = mongoose.model("logins",LoginSchema);
 
-var currentUser;
+var currentUser = "Account";
 var currentPassword;
 var loggedIn = false;
 var currentId;
@@ -105,19 +105,15 @@ app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, "/public")));
 
 app.get("/", function (req, response){
-    response.render("homePage", {
-        loggedIn
-    });
+    response.render("homePage", {accountName: currentUser});
 });
 
 app.get("/studyGuide", function (req, response){
-    response.render("studyGuide", {
-        loggedIn
-    });
+    response.render("studyGuide", {accountName: currentUser});
 });
 
 app.get("/postQuestion", function (req, response){
-    response.render("postQuestion");
+    response.render("postQuestion", {accountName: currentUser});
 });
 
 app.post("/postQuestion", async function(req, res){
@@ -132,7 +128,7 @@ app.post("/postQuestion", async function(req, res){
             console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
                 "collection. The question is as follows: " + question);
         });
-        res.render("postQuestion");
+        res.render("postQuestion", {accountName: currentUser});
     }
     else {
         console.log("Can not post question, because you are not logged in.");
@@ -140,11 +136,11 @@ app.post("/postQuestion", async function(req, res){
 })
 
 app.get("/login", function (req, response){
-    response.render("login");
+    response.render("login", {accountName: currentUser});
 });
 
 app.get("/loginFail", function (req, response){
-    response.render("loginFail");
+    response.render("loginFail", {accountName: currentUser});
 });
 
 app.post("/login",Auth_passport.authenticate('local',{
@@ -170,11 +166,11 @@ app.post("/signin", async function(req, res){
     });
 
 
-    res.render("login");
+    res.render("login", {accountName: currentUser});
 })
 
 app.get("*", function (req, response){
-    response.render("error");
+    response.render("error", {accountName: currentUser});
 });
 
 app.listen(3000, function(req,resp){
