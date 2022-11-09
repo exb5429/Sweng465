@@ -27,7 +27,8 @@ app.set("view engine", "ejs")
 
 var LoginSchema = mongoose.Schema({
     username :String,
-    password :String
+    password :String,
+    id: Number
 });
 
 LoginSchema.methods.getUsername = function () {
@@ -38,11 +39,16 @@ LoginSchema.methods.getPassword = function () {
     return this.password;
 }
 
+LoginSchema.methods.getPassword = function () {
+    return this.id;
+}
+
 var LoginModel = mongoose.model("logins",LoginSchema);
 
 var currentUser;
 var currentPassword;
 var loggedIn = false;
+var currentId;
 
 var QuestionSchema = mongoose.Schema({
     //ID : Number,
@@ -86,7 +92,7 @@ Auth_passport.use('local', new LocalStrategy(
                 loggedIn = true;
                 currentUser = User.username;
                 currentPassword = User.password;
-
+                currentId = User.id;
                 return done(null, User);
             }
         } catch (e) {
@@ -99,11 +105,15 @@ app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, "/public")));
 
 app.get("/", function (req, response){
-    response.render("homePage");
+    response.render("homePage", {
+        loggedIn
+    });
 });
 
 app.get("/studyGuide", function (req, response){
-    response.render("studyGuide");
+    response.render("studyGuide", {
+        loggedIn
+    });
 });
 
 app.get("/postQuestion", function (req, response){
@@ -147,11 +157,19 @@ app.post("/login",Auth_passport.authenticate('local',{
 app.post("/signin", async function(req, res){
     var newUser = req.body.newusername;
     var newPassword = req.body.password;
-    let New = await LoginModel({username:newUser,password:newPassword});
-    New.save(function (err) {
-        if (err) return console.error(err);
-        console.log(newUser + " saved to logins collection.");
+    var idNum;
+
+    LoginModel.countDocuments({}, function (err, count) {
+        idNum = count+1;
+        let New = LoginModel({username:newUser,password:newPassword, id:idNum});
+
+        New.save(function (err) {
+            if (err) return console.error(err);
+            console.log(newUser + " saved to logins collection.");
+        });
     });
+
+
     res.render("login");
 })
 
