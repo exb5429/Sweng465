@@ -224,6 +224,16 @@ app.post("/searchQuestion", async function(req, res){
 
         /*
         let questionsData = JSON.parse('<%- questions%>');
+        
+        PostQuestionModel.find({'subject': 'Math'}, function(err, questions){
+            if(err){
+                console.log(err);
+            }
+            else{
+                // send study history
+                res.render('test', {questions: JSON.stringify(questions)});
+            }
+        });
          */
 
     });
