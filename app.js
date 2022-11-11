@@ -49,6 +49,9 @@ var currentUser = "Account";
 var currentPassword;
 var loggedIn = false;
 var currentId;
+/*
+var searchedQuestions;
+ */
 
 var QuestionSchema = mongoose.Schema({
     id : Number,
@@ -120,7 +123,8 @@ app.get("/postQuestion", function (req, response){
     response.render("postQuestion", {accountName: currentUser});
 });
 
-app.post("/postQuestion", async function(req, res){
+app.post("/postQuestion", async function(req, res) {
+
     if (loggedIn) {
         var user = currentUser;
         //var ID = req.body.ID;
@@ -158,10 +162,14 @@ app.post("/postQuestion", async function(req, res){
     else {
         alert("Log in")
     }
-})
+});
 
 app.get("/login", function (req, response){
     response.render("login", {accountName: currentUser});
+});
+
+app.get("/signup", function (req, response){
+    response.render("signup", {accountName: currentUser});
 });
 
 app.get("/loginFail", function (req, response){
@@ -172,6 +180,10 @@ app.get("/searchQuestion", function (req, response){
     response.render("searchQuestion", {
         questions: PostQuestionModel, accountName: currentUser
     });
+});
+
+app.get("/selectedQuestion", function (req, response){
+    response.render("selectedQuestion", {accountName: currentUser});
 });
 
 app.post("/searchQuestion", async function(req, res){
@@ -210,7 +222,9 @@ app.post("/searchQuestion", async function(req, res){
         }
         run().catch(console.dir);
 
-
+        /*
+        let questionsData = JSON.parse('<%- questions%>');
+         */
 
     });
 

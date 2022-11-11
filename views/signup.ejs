@@ -23,33 +23,22 @@
 </style>
 
 <body>
-<div class="alert alert-danger " role="alert" style = "width: 400px;">
-    Incorrect Login Information!
-</div>
-<form action = "/login" method="post">
-    <label for="username">User Name</label>
-    <input type="text" id="username" name="username">
+
+<form action = "/signin" method="post">
+    <label for="NewUsername">User Name</label>
+    <input type="text" name="newusername">
     <br><br>
 
     <label for="password">Password</label>
-    <input type="password" id="password" name="password">
+    <input type="password" id = "newPassword" name="password">
     <br><br>
 
-    <input type="checkbox" id="showPass" onclick="showPassword()">
+    <input type="checkbox" id="showPass" onclick="showNewPassword()">
     <label for="showPass">Show Password</label>
     <br><br>
 
-    <button type="submit" class="btn btn-primary">Login</button>
+    <button type="submit" class="btn btn-primary">Sign-Up</button>
 </form>
-
-<a class="btn btn-dark" href="/signup" style="width: 200px; ">Need an account?</a>
-
-
-
-
-
-
-
 
 
 
