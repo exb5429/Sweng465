@@ -21,9 +21,12 @@ app.use(Auth_passport.initialize());
 app.set("views", path.resolve(__dirname, "views"));
 app.set("view engine", "ejs")
 
+var subjectSchema = mongoose.Schema({
+    subject: String
 
+})
 
-
+var subjectModel = mongoose.model("subjects",subjectSchema);
 
 var LoginSchema = mongoose.Schema({
     username :String,
@@ -61,9 +64,6 @@ var QuestionSchema = mongoose.Schema({
     subject :String
 });
 
-/*QuestionSchema.methods.getID = function () {
-    return this.ID;
-}*/
 
 QuestionSchema.methods.getUsername = function () {
     return this.username;
@@ -237,14 +237,30 @@ app.post("/searchQuestion", async function(req, res){
          */
 
     });
-
-
-
-
-
-
-
 });
+
+app.get("/getSubjects", function (req, response){
+    console.log("Subjects: ")
+});
+
+app.post("/addSubject", function (req, response){
+    var subjectRequest = req.body.subject;
+    let New = PostQuestionModel({
+        subject: subjectRequest
+    });
+
+    New.save(function (err) {
+        if (err) return console.error(err);
+        console.log(subjectRequest + "added");
+    });
+    console.log("Add Subject:  ")
+});
+
+app.delete("/delSubject", function (req, response){
+    console.log("Delete Subject:  ")
+});
+
+
 app.post("/login",Auth_passport.authenticate('local',{
         successRedirect: '/',
         failureRedirect: '/loginFail',
