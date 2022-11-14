@@ -15,15 +15,8 @@ const { MongoClient } = require("mongodb");
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(Auth_passport.initialize());
 
-
-
-
 app.set("views", path.resolve(__dirname, "views"));
 app.set("view engine", "ejs")
-
-
-
-
 
 var LoginSchema = mongoose.Schema({
     username :String,
@@ -61,9 +54,9 @@ var QuestionSchema = mongoose.Schema({
     subject :String
 });
 
-/*QuestionSchema.methods.getID = function () {
-    return this.ID;
-}*/
+QuestionSchema.methods.getID = function () {
+    return this.id;
+}
 
 QuestionSchema.methods.getUsername = function () {
     return this.username;
@@ -78,6 +71,45 @@ QuestionSchema.methods.getSubject = function () {
 }
 
 var PostQuestionModel = mongoose.model("questions",QuestionSchema);
+
+PostQuestionModel.methods.getByID = functon () {
+    return
+}
+
+var CommentSchema = mongoose.Schema({
+    id : Number,
+    commenterId : Number,
+    username : String,
+    comment :String,
+    likes : Number,
+    dislikes : Number
+});
+
+CommentSchema.methods.getID = function () {
+    return this.id;
+}
+
+CommentSchema.methods.getCommenterID = function () {
+    return this.commenterId;
+}
+
+CommentSchema.methods.getUsername = function () {
+    return this.username;
+}
+
+CommentSchema.methods.getComment = function () {
+    return this.comment;
+}
+
+CommentSchema.methods.getLikes = function () {
+    return this.likes;
+}
+
+CommentSchema.methods.getDislikes = function () {
+    return this.dislikes;
+}
+
+var CommentModel = mongoose.model("comments",CommentSchema);
 
 mongoose.connect("mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority");
 
@@ -111,8 +143,6 @@ app.use(express.static(path.join(__dirname, "/public")));
 
 app.get("/", function (req, response){
     response.render("homePage", {accountName: currentUser})
-
-
 });
 
 app.get("/studyGuide", function (req, response){
@@ -240,11 +270,49 @@ app.post("/searchQuestion", async function(req, res){
 
 
 
+    app.post("/postComment", async function(req, res) {
+
+        if (loggedIn) {
+            var user = currentUser;
+            //var ID = req.body.ID;
+            var subject = req.body.subject;
+            var question = req.body.question;
+            CommentModel.countDocuments({}, function (err, count) {
+                idNum = count + 1;
+                let New = CommentModel({
+                    id: idNum,
+                    commenterId: currentId,
+                    username: currentUser,
+                    comment: comment,
+                    likes: 0,
+                    dislikes: 0
+                });
+
+                New.save(function (err) {
+                    if (err) return console.error(err);
+                    console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
+                        "collection. The question is as follows: " + question);
+                });
+
+                res.render("postQuestion", {accountName: currentUser});
 
 
-
-
+            });
+        }
+        //     let New = await PostQuestionModel({username:user/*,ID:ID*/, subject:subject, question:question});
+        //     New.save(function (err) {
+        //         if (err) return console.error(err);
+        //         console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
+        //             "collection. The question is as follows: " + question);
+        //     });
+        //     res.render("postQuestion");
+        // }
+        else {
+            alert("Log in")
+        }
+    });
 });
+
 app.post("/login",Auth_passport.authenticate('local',{
         successRedirect: '/',
         failureRedirect: '/loginFail',
