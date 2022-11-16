@@ -239,25 +239,52 @@ app.post("/searchQuestion", async function(req, res){
     });
 });
 
+
+
+app.get("/subjectGet", function (req, response){
+    response.render("subjectGet", {accountName: currentUser});
+});
+
+app.get("/subjectPost", function (req, response){
+    response.render("subjectPost", {accountName: currentUser});
+});
+
+app.get("/subjectDel", function (req, response){
+    response.render("subjectDel", {accountName: currentUser});
+});
+
 app.get("/getSubjects", function (req, response){
-    console.log("Subjects: ")
+    const Subject = mongoose.model('subjects', subjectSchema);
+
+
+    Subject.find({}, 'subject' ,function (err, docs) {
+       console.log(docs)
+    });
 });
 
 app.post("/addSubject", function (req, response){
     var subjectRequest = req.body.subject;
-    let New = PostQuestionModel({
+    console.log(subjectRequest)
+    let New = subjectModel({
         subject: subjectRequest
     });
 
     New.save(function (err) {
         if (err) return console.error(err);
-        console.log(subjectRequest + "added");
+        console.log(subjectRequest + " added");
     });
     console.log("Add Subject:  ")
 });
 
-app.delete("/delSubject", function (req, response){
-    console.log("Delete Subject:  ")
+app.post("/delSubject", function (req, response){
+    var subjectRequest = req.body.subject;
+    const Subject = mongoose.model('subjects', subjectSchema);
+
+    Subject.findOneAndDelete({ 'subject': subjectRequest }, function (err, subject) {
+        if (err) return handleError(err);
+        console.log("Deleted " + subject);
+    });
+
 });
 
 
@@ -267,6 +294,15 @@ app.post("/login",Auth_passport.authenticate('local',{
         session: false
     })
 );
+
+
+
+
+
+
+
+
+
 
 app.post("/signin", async function(req, res){
     var newUser = req.body.newusername;
