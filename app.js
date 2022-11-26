@@ -28,6 +28,14 @@ var subjectSchema = mongoose.Schema({
 
 var subjectModel = mongoose.model("subjects",subjectSchema);
 
+
+var answerSchema = mongoose.Schema({
+    questionID: Number,
+    answer: String
+})
+
+var answerModel = mongoose.model("answers",answerSchema);
+
 var LoginSchema = mongoose.Schema({
     username :String,
     password :String,
@@ -244,6 +252,49 @@ app.post("/delSubject", function (req, response){
     response.render("homePage", {accountName: currentUser})
 });
 
+app.get("/answerGet", function (req, response){
+    response.render("answerGet", {accountName: currentUser});
+});
+
+app.get("/answerPost", function (req, response){
+    response.render("answerPost", {accountName: currentUser});
+});
+
+app.post("/getAnswers", function (req, response){
+    const Answer = mongoose.model('answers', answerSchema);
+    var questionId = req.body.questionId;
+
+    Answer.find({ 'questionID': questionId}, { _id:0, __v:0} ,function (err, docs) {
+        console.log(docs)
+    });
+
+    const Question = mongoose.model('questions', QuestionSchema);
+
+
+    Question.find({ 'id': questionId}, { id: 0, askId:0, username:0, subject:0,_id:0, __v:0} ,function (err, docs) {
+        console.log(docs)
+    });
+
+
+
+    response.render("homePage", {accountName: currentUser})
+});
+
+app.post("/addAnswer", function (req, response){
+    var answer = req.body.answer;
+    var questionId = req.body.questionId;
+
+    let New = answerModel({
+        questionID: questionId,
+        answer: answer
+    });
+
+    New.save(function (err) {
+        if (err) return console.error(err);
+        console.log(answer + " " + questionId + " added");
+    });
+    response.render("homePage", {accountName: currentUser})
+});
 
 app.post("/login",Auth_passport.authenticate('local',{
         successRedirect: '/',

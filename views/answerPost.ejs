@@ -1,0 +1,16 @@
+<%- include('header.ejs') %>
+<body>
+
+<form action = "/addAnswer" method="Post">
+    <label for="questionId">Question ID</label>
+    <input type="text" id="questionId" name="questionId">
+    <label for="answer">Post an Answer</label>
+    <input type="text" id="answer" name="answer">
+    <br><br>
+
+
+    <button type="submit" class="btn btn-primary">Post Answer</button>
+</form>
+
+</body>
+<%- include('footer.ejs') %>
