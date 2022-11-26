@@ -260,6 +260,7 @@ app.get("/getSubjects", function (req, response){
     Subject.find({}, 'subject' ,function (err, docs) {
        console.log(docs)
     });
+    response.render("homePage", {accountName: currentUser})
 });
 
 app.post("/addSubject", function (req, response){
@@ -273,7 +274,8 @@ app.post("/addSubject", function (req, response){
         if (err) return console.error(err);
         console.log(subjectRequest + " added");
     });
-    console.log("Add Subject:  ")
+    console.log("Add Subject:  " + subjectRequest)
+    response.render("homePage", {accountName: currentUser})
 });
 
 app.post("/delSubject", function (req, response){
@@ -284,7 +286,7 @@ app.post("/delSubject", function (req, response){
         if (err) return handleError(err);
         console.log("Deleted " + subject);
     });
-
+    response.render("homePage", {accountName: currentUser})
 });
 
 
@@ -294,15 +296,6 @@ app.post("/login",Auth_passport.authenticate('local',{
         session: false
     })
 );
-
-
-
-
-
-
-
-
-
 
 app.post("/signin", async function(req, res){
     var newUser = req.body.newusername;
