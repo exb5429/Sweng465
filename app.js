@@ -186,60 +186,15 @@ app.get("/selectedQuestion", function (req, response){
     response.render("selectedQuestion", {accountName: currentUser});
 });
 
-app.post("/searchQuestion", async function(req, res){
+app.post("/searchQuestions", function (req, response){
     var subjectRequest = req.body.subject;
+    const Question = mongoose.model('questions', QuestionSchema);
 
-
-    PostQuestionModel.countDocuments({},function(err,count){
-        const uri = "mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority";
-        const client = new MongoClient(uri);
-        async function run() {
-            try {
-                await client.connect();
-                // database and collection code goes here
-                const db = client.db("test");
-                const coll = db.collection("questions");
-                // find code goes here
-                const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
-                //await cursor.forEach(console.log);
-                //const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
-                // iterate code goes here
-                await cursor.forEach(function(myDoc) {
-
-                    console.log(myDoc)
-                    var size = Object.keys(myDoc).length;
-                    res.header("searchQuestion", {accountName: currentUser, questionList: myDoc, size:size});
-
-
-
-
-                });
-            } finally {
-                // Ensures that the client will close when you finish/error
-                await client.close();
-            }
-
-        }
-        run().catch(console.dir);
-
-        /*
-        let questionsData = JSON.parse('<%- questions%>');
-        
-        PostQuestionModel.find({'subject': 'Math'}, function(err, questions){
-            if(err){
-                console.log(err);
-            }
-            else{
-                // send study history
-                res.render('test', {questions: JSON.stringify(questions)});
-            }
-        });
-         */
-
+    Question.find({ 'subject' : subjectRequest}, { _id:0, __v:0},function (err, docs) {
+        console.log(docs)
     });
+    response.render("homePage", {accountName: currentUser})
 });
-
-
 
 app.get("/subjectGet", function (req, response){
     response.render("subjectGet", {accountName: currentUser});
