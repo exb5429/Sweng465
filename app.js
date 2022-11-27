@@ -30,8 +30,11 @@ var subjectModel = mongoose.model("subjects",subjectSchema);
 
 
 var answerSchema = mongoose.Schema({
+    user: String,
+    userId: String,
     questionID: Number,
-    answer: String
+    answer: String,
+    answerId: Number
 })
 
 var answerModel = mongoose.model("answers",answerSchema);
@@ -132,43 +135,66 @@ app.get("/postQuestion", function (req, response){
 });
 
 app.post("/postQuestion", async function(req, res) {
-
     if (loggedIn) {
         var user = currentUser;
-        //var ID = req.body.ID;
         var subject = req.body.subject;
         var question = req.body.question;
+        var idNum = 1;
+        var idAvailable = false;
         PostQuestionModel.countDocuments({}, function (err, count) {
-            idNum = count + 1;
-            let New = PostQuestionModel({
-                id: idNum,
-                askId: currentId,
-                username: currentUser,
-                question: question,
-                subject: subject
-            });
 
-            New.save(function (err) {
-                if (err) return console.error(err);
-                console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
-                    "collection. The question is as follows: " + question);
-            });
+            const uri = "mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority";
+            const client = new MongoClient(uri);
+            async function run() {
+                try {
+                    await client.connect();
+                    // database and collection code goes here
+                    const db = client.db("test");
+                    const coll = db.collection("questions");
+                    // find code goes here
 
-            res.render("postQuestion", {accountName: currentUser});
+                    while(!idAvailable) {
+                        const cursor = coll.find({id: idNum});
+                        //await cursor.forEach(console.log);
+                        //const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
+                        // iterate code goes here
+                        if (await cursor.count() > 0) {
+                            idNum += 1;
+                        }
+                        else{
+                            idAvailable = true;
+                        }
+                    }
+                } finally {
+                    let New = PostQuestionModel({
+                        id: idNum,
+                        askId: currentId,
+                        username: currentUser,
+                        question: question,
+                        subject: subject
+                    });
 
+                    New.save(function (err) {
+                        if (err) return console.error(err);
+                        console.log(user + " with ID " + currentId + " " + "saved a " + subject + " question to " +
+                            "questions collection. The question with id: " + idNum + " is as follows: " + question);
+                    });
+
+                    // Ensures that the client will close when you finish/error
+                    await client.close();
+                }
+
+            }
+
+            run().catch(console.dir);
 
         });
+
+        res.render("postQuestion", {accountName: currentUser});
     }
-    //     let New = await PostQuestionModel({username:user/*,ID:ID*/, subject:subject, question:question});
-    //     New.save(function (err) {
-    //         if (err) return console.error(err);
-    //         console.log(user + /*"with ID " + ID + */" " + "saved a " + subject + " question saved to questions " +
-    //             "collection. The question is as follows: " + question);
-    //     });
-    //     res.render("postQuestion");
-    // }
     else {
         alert("Log in")
+        res.render("homePage", {accountName: currentUser});
     }
 });
 
@@ -281,19 +307,91 @@ app.post("/getAnswers", function (req, response){
 });
 
 app.post("/addAnswer", function (req, response){
-    var answer = req.body.answer;
-    var questionId = req.body.questionId;
+    if (loggedIn) {
+        var answer = req.body.answer;
+        var questionId = req.body.questionId;
 
-    let New = answerModel({
-        questionID: questionId,
-        answer: answer
+        var idNum = 1;
+        var idAvailable = false;
+        PostQuestionModel.countDocuments({}, function (err, count) {
+
+            const uri = "mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority";
+            const client = new MongoClient(uri);
+            async function run() {
+                try {
+                    await client.connect();
+                    // database and collection code goes here
+                    const db = client.db("test");
+                    const coll = db.collection("answers");
+                    // find code goes here
+
+                    while(!idAvailable) {
+                        const cursor = coll.find({id: idNum});
+                        //await cursor.forEach(console.log);
+                        //const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
+                        // iterate code goes here
+                        if (await cursor.count() > 0) {
+                            idNum += 1;
+                        }
+                        else{
+                            idAvailable = true;
+                        }
+                    }
+                } finally {
+                    let New = answerModel({
+                        user: currentUser,
+                        userId: currentId,
+                        questionID: questionId,
+                        answerId: idNum,
+                        answer: answer
+                    });
+
+                    New.save(function (err) {
+                        if (err) return console.error(err);
+                        console.log("Answer added is " + answer);
+                        console.log("Question id is " + questionId);
+                        console.log("Answer id is " + idNum);
+                        console.log("User is " + currentUser);
+                    });
+
+                    // Ensures that the client will close when you finish/error
+                    await client.close();
+                }
+
+            }
+
+            run().catch(console.dir);
+
+        });
+
+        res.render("homePage", {accountName: currentUser});
+    }
+    else {
+        alert("Log in")
+        res.render("homePage", {accountName: currentUser});
+    }
+});
+
+app.get("/userGet", function (req, response){
+    response.render("subjectGet", {accountName: currentUser});
+});
+
+app.get("/userDel", function (req, response){
+    response.render("userDel", {accountName: currentUser});
+});
+
+app.post("/userDel", function (req, response){
+    var userRequest = req.body.user;
+    var userId;
+
+    const User = mongoose.model('logins', LoginSchema);
+
+    User.findOneAndDelete({ 'username': userRequest }, function (err, username) {
+        if (err) return handleError(err);
+        console.log("Deleted " + username);
     });
 
-    New.save(function (err) {
-        if (err) return console.error(err);
-        console.log(answer + " " + questionId + " added");
-    });
-    response.render("homePage", {accountName: currentUser})
+    response.render("userDel", {accountName: currentUser});
 });
 
 app.post("/login",Auth_passport.authenticate('local',{
@@ -306,16 +404,48 @@ app.post("/login",Auth_passport.authenticate('local',{
 app.post("/signin", async function(req, res){
     var newUser = req.body.newusername;
     var newPassword = req.body.password;
-    var idNum;
+    var idNum = 1;
+    var idAvailable = false;
 
     LoginModel.countDocuments({}, function (err, count) {
-        idNum = count+1;
-        let New = LoginModel({username:newUser,password:newPassword, id:idNum});
 
-        New.save(function (err) {
-            if (err) return console.error(err);
-            console.log(newUser + " saved to logins collection.");
-        });
+        const uri = "mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority";
+        const client = new MongoClient(uri);
+        async function run() {
+            try {
+                await client.connect();
+                // database and collection code goes here
+                const db = client.db("test");
+                const coll = db.collection("logins");
+                // find code goes here
+
+                while(!idAvailable) {
+                    const cursor = coll.find({id: idNum});
+                    //await cursor.forEach(console.log);
+                    //const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
+                    // iterate code goes here
+                    if (await cursor.count() > 0) {
+                        idNum += 1;
+                    }
+                    else{
+                        idAvailable = true;
+                    }
+                }
+            } finally {
+                let New = LoginModel({username:newUser,password:newPassword, id:idNum});
+
+                New.save(function (err) {
+                    if (err) return console.error(err);
+                    console.log(newUser + " saved to logins collection.  " + "with id: " + idNum);
+                });
+
+                // Ensures that the client will close when you finish/error
+                await client.close();
+            }
+
+        }
+
+        run().catch(console.dir);
     });
 
 
