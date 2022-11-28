@@ -6,15 +6,17 @@ var app = express();
 
 // NEW
 var Auth_passport = require('passport');
+var AuthSignUp_passport = require('passport');
 const bodyParser = require("body-parser");
 var LocalStrategy = require('passport-local').Strategy;
+var LocalStrategyTwo = require('passport-local').Strategy;
 var mongoose = require("mongoose");
 const http = require("http");
 const { MongoClient } = require("mongodb");
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(Auth_passport.initialize());
-
+app.use(AuthSignUp_passport.initialize());
 
 
 
@@ -117,17 +119,40 @@ Auth_passport.use('local', new LocalStrategy(
     }
 ));
 
+AuthSignUp_passport.use('localTwo', new LocalStrategyTwo(
+    async function (checkUsername, checkPassword, done) {
+        try {
+            console.log("Username: " + checkUsername);
+            let Username = await LoginModel.findOne({username: checkUsername});
+
+            if (Username == undefined || Username == null) {
+                console.log("User: " + checkUsername + " has signed up");
+                let Username = {
+                    username : "1",
+                    password : "1",
+                    id: 0
+                };
+                return done(null, Username);
+            }
+            else {
+                console.log("Username not available.");
+                return done(null, false, {message: 'Username not available.'});
+            }
+        } catch (e) {
+            console.log(e)
+        }
+    }
+));
+
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, "/public")));
 
 app.get("/", function (req, response){
-    response.render("homePage", {accountName: currentUser})
-
-
+    response.render("homePage", {accountName: currentUser});
 });
 
 app.get("/studyGuide", function (req, response){
-    response.render("studyGuide", {accountName: currentUser})
+    response.render("studyGuide", {accountName: currentUser});
 });
 
 app.get("/postQuestion", function (req, response){
@@ -364,11 +389,11 @@ app.post("/addAnswer", function (req, response){
 
         });
 
-        res.render("homePage", {accountName: currentUser});
+        response.render("homePage", {accountName: currentUser});
     }
     else {
         alert("Log in")
-        res.render("homePage", {accountName: currentUser});
+        response.render("homePage", {accountName: currentUser});
     }
 });
 
@@ -382,14 +407,44 @@ app.get("/userDel", function (req, response){
 
 app.post("/userDel", function (req, response){
     var userRequest = req.body.user;
-    var userId;
 
     const User = mongoose.model('logins', LoginSchema);
 
-    User.findOneAndDelete({ 'username': userRequest }, function (err, username) {
-        if (err) return handleError(err);
-        console.log("Deleted " + username);
-    });
+    const Question = mongoose.model('questions', QuestionSchema);
+
+    const Answer = mongoose.model('answers', answerSchema);
+
+    async function run() {
+        try {
+            await User.find({'username': userRequest}, function(err, docs){
+                if (err) return console.error(err);
+                if (docs[0] == null || docs[0] == undefined){
+                    return console.log("Could not find user");
+                }
+                else{
+                    Question.deleteMany({'askId': docs[0].id}, function (errTwo, docsThree) {
+                        if (errTwo) return console.error(errTwo);
+                        console.log("Deleted first" + docsThree);
+                    });
+
+                    Answer.deleteMany({'userId': docs[0].id}, function (errTwo, docsThree) {
+                        if (errTwo) return console.error(errTwo);
+                        console.log("Deleted second" + docsThree);
+                    });
+
+                    User.findOneAndDelete({'username': userRequest}, function (errThree, username) {
+                        if (errThree) return console.error(errThree);
+                        console.log("Deleted third" + username);
+                    });
+                }
+            });
+
+        } catch (e) {
+
+        }
+    }
+
+    run().catch(console.dir);
 
     response.render("userDel", {accountName: currentUser});
 });
@@ -401,8 +456,11 @@ app.post("/login",Auth_passport.authenticate('local',{
     })
 );
 
-app.post("/signin", async function(req, res){
-    var newUser = req.body.newusername;
+app.post("/signin", AuthSignUp_passport.authenticate('localTwo',{
+    failureRedirect: '/loginFail',
+    session: false
+    }), async function(req, res){
+    var newUser = req.body.username;
     var newPassword = req.body.password;
     var idNum = 1;
     var idAvailable = false;
@@ -447,7 +505,6 @@ app.post("/signin", async function(req, res){
 
         run().catch(console.dir);
     });
-
 
     res.render("login", {accountName: currentUser});
 })
