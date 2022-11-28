@@ -125,7 +125,7 @@ AuthSignUp_passport.use('localTwo', new LocalStrategyTwo(
             console.log("Username: " + checkUsername);
             let Username = await LoginModel.findOne({username: checkUsername});
 
-            if (Username == undefined || Username == null) {
+            if ((Username == undefined || Username == null) && (checkPassword.length >= 8)) {
                 console.log("User: " + checkUsername + " has signed up");
                 let Username = {
                     username : "1",
@@ -134,7 +134,11 @@ AuthSignUp_passport.use('localTwo', new LocalStrategyTwo(
                 };
                 return done(null, Username);
             }
-            else {
+            else if (checkPassword.length < 8) {
+                console.log("Password not long enough.");
+                return done(null, false, {message: 'Password not long enough.'});
+            }
+            else{
                 console.log("Username not available.");
                 return done(null, false, {message: 'Username not available.'});
             }
@@ -218,9 +222,51 @@ app.post("/postQuestion", async function(req, res) {
         res.render("postQuestion", {accountName: currentUser});
     }
     else {
-        alert("Log in")
+        alert("Log in");
         res.render("homePage", {accountName: currentUser});
     }
+});
+
+app.get("/questionDel", function (req, response){
+    response.render("questionDel", {accountName: currentUser});
+});
+
+app.post("/questionDel", function (req, response){
+    var questionRequestId = req.body.question;
+
+    const Question = mongoose.model('questions', QuestionSchema);
+
+    const Answer = mongoose.model('answers', answerSchema);
+
+    async function run() {
+        try {
+            await Question.find({'id': questionRequestId}, function(err, docs){
+                if (err) return console.error(err);
+                if (docs[0] == null || docs[0] == undefined){
+                    return console.log("Could not find question");
+                }
+                else{
+
+                    Answer.deleteMany({'questionID': docs[0].id}, function (errTwo, docsThree) {
+                        if (errTwo) return console.error(errTwo);
+                        console.log("Deleted second" + docsThree);
+                    });
+
+                    Question.findOneAndDelete({'id': questionRequestId}, function (errThree, question) {
+                        if (errThree) return console.error(errThree);
+                        console.log("Deleted third" + question);
+                    });
+                }
+            });
+
+        } catch (e) {
+
+        }
+    }
+
+    run().catch(console.dir);
+
+    response.render("questionDel", {accountName: currentUser});
 });
 
 app.get("/login", function (req, response){
@@ -395,6 +441,41 @@ app.post("/addAnswer", function (req, response){
         alert("Log in")
         response.render("homePage", {accountName: currentUser});
     }
+});
+
+app.get("/answerDel", function (req, response){
+    response.render("answerDel", {accountName: currentUser});
+});
+
+app.post("/answerDel", function (req, response){
+    var answerRequestId = req.body.answer;
+
+    const Answer = mongoose.model('answers', answerSchema);
+
+    async function run() {
+        try {
+            await Answer.find({'answerId': answerRequestId}, function(err, docs){
+                if (err) return console.error(err);
+                if (docs[0] == null || docs[0] == undefined){
+                    return console.log("Could not find answer");
+                }
+                else{
+
+                    Answer.findOneAndDelete({'answerId': answerRequestId}, function (errThree, answer) {
+                        if (errThree) return console.error(errThree);
+                        console.log("Deleted third" + answer);
+                    });
+                }
+            });
+
+        } catch (e) {
+
+        }
+    }
+
+    run().catch(console.dir);
+
+    response.render("answerDel", {accountName: currentUser});
 });
 
 app.get("/userGet", function (req, response){
