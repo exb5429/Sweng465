@@ -282,9 +282,21 @@ app.get("/loginFail", function (req, response){
 });
 
 app.get("/searchQuestion", function (req, response){
-    response.render("searchQuestion", {
-        questions: PostQuestionModel, accountName: currentUser
+    const Subject = mongoose.model('subjects', subjectSchema);
+    let subjects;
+
+    Subject.find({},  {_id:0, __v:0} ,function (err, docs) {
+
+        subjects = docs;
+        console.log(subjects);
+        response.render("searchQuestion", {
+            questions: PostQuestionModel,
+            accountName: currentUser,
+            docs: subjects
+        });
+
     });
+
 });
 
 app.get("/selectedQuestion", function (req, response){
@@ -315,12 +327,15 @@ app.get("/subjectDel", function (req, response){
 
 app.get("/getSubjects", function (req, response){
     const Subject = mongoose.model('subjects', subjectSchema);
+    let test;
 
+    Subject.find({},  {_id:0, __v:0} ,function (err, docs) {
 
-    Subject.find({}, 'subject' ,function (err, docs) {
-       console.log(docs)
+       test = docs;
+       console.log(test);
+       response.render("homePage", {accountName: currentUser, docs: test})
     });
-    response.render("homePage", {accountName: currentUser})
+
 });
 
 app.post("/addSubject", function (req, response){
