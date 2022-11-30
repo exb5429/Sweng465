@@ -29,57 +29,21 @@
     }
 </style>
 <div class="center font">
-    <body onload="test()">
+    <body>
     <form action="/searchQuestions" method="post">
         <div class="inner">
             <label for="subject" class="form-label">Select a subject</label>
             <select class="form-select" aria-label="Default select example" style = "width: 800px" type="subject" id="subjectList" name="subject">
+                <% for(var i=0; i<docs.length; i++) {%>
+                    <option value=<%= docs[i].subject %>><%= docs[i].subject %></option>
+                <% } %>
 
-                <!--<option selected value=NULL>Choose an option from below</option>-->
-                <!--<option value="Math">Math</option>-->
-                <!--<option value="Science">Science</option>-->
-                <!--<option value="English">English</option>-->
-                <!--<option value="Social Studies">Social Studies</option>-->
-                <!--<option value="Other">Other</option>-->
             </select>
         </div>
         <div class="inner">
             <button type="submit" class="btn btn-dark" style = "width: 400px; ">Submit</button>
         </div>
     </form>
-    <ul id="dynamic-list">
-
-
-
-
-    </ul>
-
-
-
-    <script>
-        let subjects;
-        function test() {
-            subjects = <%- JSON.stringify(docs) %>
-                console.log(subjects);
-            let select = document.getElementById("subjectList");
-
-
-            for(let index in subjects) {
-                console.log(subjects[index])
-                select.options[select.options.length] = new Option(subjects[index], index);
-            }
-        }
-        //https://electrictoolbox.com/javascript-add-options-html-select/
-
-
-
-
-
-
-
-
-    </script>
-
 
 
     </body>
