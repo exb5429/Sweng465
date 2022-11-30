@@ -1,0 +1,38 @@
+<%- include('header.ejs') %>
+
+<body>
+<h1><%= subject %> Questions</h1>
+
+
+<form action="/findQuestion" method="post">
+    <div class="inner">
+            <% for(var i=0; i<docs.length; i++) {%>
+                <button value=<%= docs[i].question %>><%= docs[i].question %></button>
+            <div><%= docs[i].username %></div>
+            <br><br><br><br>
+            <% } %>
+
+
+
+    </div>
+
+</form>
+
+
+
+</body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<%- include('footer.ejs') %>

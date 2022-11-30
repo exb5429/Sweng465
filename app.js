@@ -288,7 +288,6 @@ app.get("/searchQuestion", function (req, response){
     Subject.find({},  {_id:0, __v:0} ,function (err, docs) {
 
         subjects = docs;
-        console.log(subjects);
         response.render("searchQuestion", {
             questions: PostQuestionModel,
             accountName: currentUser,
@@ -307,10 +306,13 @@ app.post("/searchQuestions", function (req, response){
     var subjectRequest = req.body.subject;
     const Question = mongoose.model('questions', QuestionSchema);
 
-    Question.find({ 'subject' : subjectRequest}, { _id:0, __v:0},function (err, docs) {
-        console.log(docs)
+    Question.find({}, { _id:0, __v:0},function (err, docs) {
+        console.log(docs[0].username)
+        response.render("questionList", {accountName: currentUser,
+        docs: docs,
+        subject: subjectRequest})
     });
-    response.render("homePage", {accountName: currentUser})
+
 });
 
 app.get("/subjectGet", function (req, response){
@@ -603,7 +605,21 @@ app.post("/signin", AuthSignUp_passport.authenticate('localTwo',{
     });
 
     res.render("login", {accountName: currentUser});
-})
+});
+
+app.post("/findQuestion", function (req, response){
+    var subjectRequest = req.body.subject;
+    const Question = mongoose.model('questions', QuestionSchema);
+
+    Question.find({}, { _id:0, __v:0},function (err, docs) {
+        console.log(docs[0].username)
+        response.render("questionList", {
+            accountName: currentUser,
+            docs: docs,
+            subject: subjectRequest})
+    });
+
+});
 
 app.get("*", function (req, response){
     response.render("error", {accountName: currentUser});
