@@ -613,13 +613,19 @@ app.post("/findQuestion", function (req, response){
 
 
     const Question = mongoose.model('questions', QuestionSchema);
+    const Answer = mongoose.model('answers', answerSchema);
+    Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, questionDocs) {
 
-    Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, docs) {
+        Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
 
-        response.render("selectedQuestion", {
-            accountName: currentUser,
-            docs: docs
+            console.log(questionDocs)
+            response.render("selectedQuestion", {
+
+                accountName: currentUser,
+                questionDocs: questionDocs,
+                answerDocs: answerDocs
             })
+        });
     });
 
 });
