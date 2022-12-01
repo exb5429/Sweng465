@@ -7,10 +7,15 @@
 <form action="/findQuestion" method="post">
     <div class="inner">
             <% for(var i=0; i<docs.length; i++) {%>
-                <button value=<%= docs[i].question %>><%= docs[i].question %></button>
+                <button  name="questionSelect" type='submit' value='<%= docs[i].id %>' ><%= docs[i].question %></button>
+
             <div><%= docs[i].username %></div>
+
             <br><br><br><br>
             <% } %>
+
+
+
 
 
 

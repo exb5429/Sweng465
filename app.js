@@ -608,15 +608,18 @@ app.post("/signin", AuthSignUp_passport.authenticate('localTwo',{
 });
 
 app.post("/findQuestion", function (req, response){
-    var subjectRequest = req.body.subject;
+    var questionSelected = req.body.questionSelect;
+
+
+
     const Question = mongoose.model('questions', QuestionSchema);
 
-    Question.find({}, { _id:0, __v:0},function (err, docs) {
-        console.log(docs[0].username)
-        response.render("questionList", {
+    Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, docs) {
+
+        response.render("selectedQuestion", {
             accountName: currentUser,
-            docs: docs,
-            subject: subjectRequest})
+            docs: docs
+            })
     });
 
 });
