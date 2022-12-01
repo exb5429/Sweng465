@@ -44,15 +44,18 @@
 <p><%- questionDocs[0].username %></p>
 </div>
 <h2>Answers</h2>
-<% for(var i=0; i<answerDocs.length; i++) {%>
-    <div>
-    <p><%= answerDocs[i].answer %></p>
-    <p><%= answerDocs[i].user %></p>
-        <br><br><br>
-    </div>
 
-    <br><br><br><br>
-<% } %>
+<form action="/addStudy" method="post">
+    <% for(var i=0; i<answerDocs.length; i++) {%>
+        <div>
+        <p><%= answerDocs[i].answer %></p>
+        <p><%= answerDocs[i].user %></p>
+            <br><br><br>
+        </div>
+        <button  name="studySelect" type='submit' value='<%= answerDocs[i].answerId %>' >Add this answer and question to study guide.</button>
+        <br><br><br><br>
+    <% } %>
+</form>
 
 
 

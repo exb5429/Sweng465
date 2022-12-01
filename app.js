@@ -23,6 +23,18 @@ app.use(AuthSignUp_passport.initialize());
 app.set("views", path.resolve(__dirname, "views"));
 app.set("view engine", "ejs")
 
+var studySchema = mongoose.Schema({
+    user: String,
+    userId: String,
+    question: String,
+    questionId: Number,
+    answer: String,
+    answerId: Number,
+    id: Number
+})
+
+var studyModel = mongoose.model("studyGuide",studySchema);
+
 var subjectSchema = mongoose.Schema({
     subject: String
 
@@ -65,9 +77,6 @@ var currentUser = "Account";
 var currentPassword;
 var loggedIn = false;
 var currentId;
-/*
-var searchedQuestions;
- */
 
 var QuestionSchema = mongoose.Schema({
     id : Number,
@@ -155,8 +164,104 @@ app.get("/", function (req, response){
     response.render("homePage", {accountName: currentUser});
 });
 
+app.post("/addStudy", async function(req, res) {
+    if (loggedIn) {
+        var user = currentUser;
+        var userId = currentId;
+        var answerId = req.body.studySelect;
+        var idNum = 1;
+        var idAvailable = false;
+        var answer;
+        var question;
+        var questionId;
+
+        const Question = mongoose.model('questions', QuestionSchema);
+        const Answer = mongoose.model('answers', answerSchema);
+        Answer.find({'answerId': answerId}, { _id:0, __v:0},function (err, answerDocs) {
+            answer = answerDocs[0].answer;
+            Question.find({'id': answerDocs[0].questionID},{ _id:0, __v:0},function(err, questionDocs){
+                question = questionDocs[0].question;
+                questionId = questionDocs[0].id;
+            });
+        });
+
+        studyModel.countDocuments({}, function (err, count) {
+
+            const uri = "mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority";
+            const client = new MongoClient(uri);
+            async function run() {
+                try {
+                    await client.connect();
+                    // database and collection code goes here
+                    const db = client.db("test");
+                    const coll = db.collection("studyguides");
+                    // find code goes here
+
+                    while(!idAvailable) {
+                        const cursor = coll.find({id: idNum});
+                        //await cursor.forEach(console.log);
+                        //const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
+                        // iterate code goes here
+                        if (await cursor.count() > 0) {
+                            idNum += 1;
+                        }
+                        else{
+                            idAvailable = true;
+                        }
+                    }
+                } finally {
+                    let New = studyModel({
+                        user: currentUser,
+                        userId: currentId,
+                        question: question,
+                        questionId: questionId,
+                        answer: answer,
+                        answerId: answerId,
+                        id: idNum
+                    });
+
+                    New.save(function (err) {
+                        if (err) return console.error(err);
+                        console.log(user + " with ID " + currentId + " " + "saved a " + idNum + " study entry to " +
+                            "studyguides collection. The study with id: " + idNum + " is as follows: " + question);
+                    });
+
+                    // Ensures that the client will close when you finish/error
+                    await client.close();
+                }
+
+            }
+
+            run().catch(console.dir);
+
+        });
+
+        res.render("homePage", {accountName: currentUser});
+    }
+    else {
+        alert("Log in");
+        res.render("homePage", {accountName: currentUser});
+    }
+});
+
 app.get("/studyGuide", function (req, response){
-    response.render("studyGuide", {accountName: currentUser});
+    if(loggedIn == true){
+        const Study = mongoose.model('studyGuide', studySchema);
+
+        Study.find({'userId': currentId},  {_id:0, __v:0} ,function (err, docs) {
+            console.log(docs);
+            response.render("studyGuide", {
+                accountName: currentUser,
+                studyDocs: docs
+            });
+        });
+    }
+    else{
+        response.render("studyGuideLogin", {
+            accountName: currentUser,
+        });
+    }
+
 });
 
 app.get("/postQuestion", function (req, response){
@@ -401,7 +506,7 @@ app.post("/addAnswer", function (req, response){
 
         var idNum = 1;
         var idAvailable = false;
-        PostQuestionModel.countDocuments({}, function (err, count) {
+        answerModel.countDocuments({}, function (err, count) {
 
             const uri = "mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority";
             const client = new MongoClient(uri);
@@ -414,7 +519,7 @@ app.post("/addAnswer", function (req, response){
                     // find code goes here
 
                     while(!idAvailable) {
-                        const cursor = coll.find({id: idNum});
+                        const cursor = coll.find({answerId: idNum});
                         //await cursor.forEach(console.log);
                         //const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
                         // iterate code goes here
@@ -609,8 +714,6 @@ app.post("/signin", AuthSignUp_passport.authenticate('localTwo',{
 
 app.post("/findQuestion", function (req, response){
     var questionSelected = req.body.questionSelect;
-
-
 
     const Question = mongoose.model('questions', QuestionSchema);
     const Answer = mongoose.model('answers', answerSchema);
