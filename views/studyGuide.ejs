@@ -32,18 +32,27 @@
     <body>
     <h1 class="inner">Study Guide</h1>
     <div class="inner">
-        <form action="/findQuestion" method="post">
             <% for(var i=0; i<studyDocs.length; i++) {%>
-                <div class="study">
-                    <ul class="list-group list-group-horizontal">
-                        <button type="submit" class="btn btn-primary" onclick="changeAccountBtn()" for="questionSelect" name="questionSelect" id="questionSelect" value=<%= studyDocs[i].questionId %>>
-                            <li class="list-group-item study-item"><%= studyDocs[i].question %></li>
-                            <li class="list-group-item study-item"><%= studyDocs[i].answer %></li>
-                        </button>
-                    </ul>
-                </div>
+                    <div class="study">
+                        <ul class="list-group list-group-horizontal">
+                            <li class="list-group-item study-item">
+                                <form action="/findQuestion" method="post">
+                                    <button type="submit" class="btn btn-primary" onclick="changeAccountBtn()" for="questionSelect" name="questionSelect" id="questionSelect" value=<%= studyDocs[i].questionId %>>
+                                        
+                                            <p><%= studyDocs[i].question %></p>
+                                            <p><%= studyDocs[i].answer %></p>
+
+                                    </button>
+                                </form>
+                            </li>
+                            <li class="list-group-item study-item">
+                                <form action="/studyDel" method="post">
+                                        <button  name="studyId" type='submit' value='<%= studyDocs[i].id %>' >Delete</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
             <% } %>
-        </form>
     </div>
     </body>
 </div>

@@ -249,6 +249,43 @@ app.post("/addStudy", async function(req, res) {
     }
 });
 
+app.post("/studyDel", function (req, response){
+    var studyRequestId = req.body.studyId;
+
+    const Study = mongoose.model('studyguides', studySchema);
+
+    async function run() {
+        try {
+            await Study.find({'id': studyRequestId}, function(err, docs){
+                if (err) return console.error(err);
+                if (docs[0] == null || docs[0] == undefined){
+                    return console.log("Could not find study guide entry (Should never show up)");
+                }
+                else{
+
+                    Study.findOneAndDelete({'id': studyRequestId}, function (errThree, studyDocs) {
+                        if (errThree) return console.error(errThree);
+                        console.log("Deleted study" + studyDocs);
+                        Study.find({'userId': currentId},  {_id:0, __v:0} ,function (err, docs) {
+                            console.log(docs);
+                            response.render("studyGuide", {
+                                accountName: currentUser,
+                                studyDocs: docs,
+                                admin: admin
+                            });
+                        });
+                    });
+                }
+            });
+
+        } catch (e) {
+
+        }
+    }
+
+    run().catch(console.dir);
+});
+
 app.get("/studyGuide", function (req, response){
     if(loggedIn == true){
         const Study = mongoose.model('studyGuide', studySchema);
