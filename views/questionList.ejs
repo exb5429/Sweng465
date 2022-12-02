@@ -1,11 +1,19 @@
 <%- include('header.ejs') %>
 
+<style>
+    .center{
+        text-align: center;
+    }
+
+
+</style>
 <body>
-<h1><%= subject %> Questions</h1>
+<h1 class="center"><%= subject %> Questions</h1>
 
 
 <form action="/findQuestion" method="post">
-    <div class="inner">
+
+    <div class="inner center">
             <% for(var i=0; i<docs.length; i++) {%>
                 <button  name="questionSelect" type='submit' value='<%= docs[i].id %>' ><%= docs[i].question %></button>
 

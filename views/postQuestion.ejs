@@ -34,13 +34,12 @@
 <form action="/postQuestion" method="post">
 <div class="inner">
     <label for="subject" class="form-label">Select a subject</label>
+    <label for="subject" class="form-label">Select a subject</label>
     <select class="form-select" aria-label="Default select example" style = "width: 800px" type="subject" id="subject" name="subject">
-        <option selected value=NULL>Choose an option from below</option>
-        <option value="Math">Math</option>
-        <option value="Science">Science</option>
-        <option value="English">English</option>
-        <option value="Social Studies">Social Studies</option>
-        <option value="Other">Other</option>
+        <% for(var i=0; i<docs.length; i++) {%>
+            <option value=<%= docs[i].subject %>><%= docs[i].subject %></option>
+        <% } %>
+
     </select>
 </div>
 <div class="mb-3 inner">

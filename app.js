@@ -265,7 +265,19 @@ app.get("/studyGuide", function (req, response){
 });
 
 app.get("/postQuestion", function (req, response){
-    response.render("postQuestion", {accountName: currentUser});
+    const Subject = mongoose.model('subjects', subjectSchema);
+
+
+    Subject.find({},  {_id:0, __v:0} ,function (err, docs) {
+
+
+        response.render("postQuestion", {
+            accountName: currentUser,
+            docs: docs
+        });
+
+    });
+
 });
 
 app.post("/postQuestion", async function(req, res) {
@@ -324,7 +336,7 @@ app.post("/postQuestion", async function(req, res) {
 
         });
 
-        res.render("postQuestion", {accountName: currentUser});
+        res.render("homePage", {accountName: currentUser});
     }
     else {
         alert("Log in");
@@ -411,7 +423,7 @@ app.post("/searchQuestions", function (req, response){
     var subjectRequest = req.body.subject;
     const Question = mongoose.model('questions', QuestionSchema);
 
-    Question.find({}, { _id:0, __v:0},function (err, docs) {
+    Question.find({'subject': subjectRequest}, { _id:0, __v:0},function (err, docs) {
         console.log(docs[0].username)
         response.render("questionList", {accountName: currentUser,
         docs: docs,
