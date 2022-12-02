@@ -239,8 +239,7 @@ app.post("/addStudy", async function(req, res) {
         res.render("homePage", {accountName: currentUser});
     }
     else {
-        alert("Log in");
-        res.render("homePage", {accountName: currentUser});
+        res.render("login", {accountName: currentUser});
     }
 });
 
@@ -276,6 +275,24 @@ app.get("/postQuestion", function (req, response){
             docs: docs
         });
 
+    });
+
+});
+
+app.get("/questionGet", function (req, response){
+    response.render("questionGet", {accountName: currentUser});
+});
+
+app.get("/getQuestions", function (req, response){
+    const Question = mongoose.model('questions', QuestionSchema);
+    var user = req.body.user;
+    let test;
+
+    Question.find({'username': user},  {_id:0, __v:0} ,function (err, docs) {
+
+        test = docs;
+        console.log(test);
+        response.render("homePage", {accountName: currentUser, docs: test})
     });
 
 });
@@ -339,8 +356,7 @@ app.post("/postQuestion", async function(req, res) {
         res.render("homePage", {accountName: currentUser});
     }
     else {
-        alert("Log in");
-        res.render("homePage", {accountName: currentUser});
+        res.render("login", {accountName: currentUser});
     }
 });
 
@@ -355,6 +371,8 @@ app.post("/questionDel", function (req, response){
 
     const Answer = mongoose.model('answers', answerSchema);
 
+    const Study = mongoose.model('studyguides', studySchema);
+
     async function run() {
         try {
             await Question.find({'id': questionRequestId}, function(err, docs){
@@ -364,9 +382,14 @@ app.post("/questionDel", function (req, response){
                 }
                 else{
 
-                    Answer.deleteMany({'questionID': docs[0].id}, function (errTwo, docsThree) {
+                    Answer.deleteMany({'questionID': docs[0].id}, function (errOne, docsThree) {
+                        if (errOne) return console.error(errOne);
+                        console.log("Deleted first" + docsThree);
+                    });
+
+                    Study.deleteMany({'questionId': docs[0].id}, function (errTwo, docsTwo) {
                         if (errTwo) return console.error(errTwo);
-                        console.log("Deleted second" + docsThree);
+                        console.log("Deleted second" + docsTwo);
                     });
 
                     Question.findOneAndDelete({'id': questionRequestId}, function (errThree, question) {
@@ -572,8 +595,8 @@ app.post("/addAnswer", function (req, response){
         response.render("homePage", {accountName: currentUser});
     }
     else {
-        alert("Log in")
-        response.render("homePage", {accountName: currentUser});
+
+        response.render("login", {accountName: currentUser});
     }
 });
 
@@ -586,6 +609,8 @@ app.post("/answerDel", function (req, response){
 
     const Answer = mongoose.model('answers', answerSchema);
 
+    const Study = mongoose.model('studyguides', studySchema);
+
     async function run() {
         try {
             await Answer.find({'answerId': answerRequestId}, function(err, docs){
@@ -594,6 +619,11 @@ app.post("/answerDel", function (req, response){
                     return console.log("Could not find answer");
                 }
                 else{
+
+                    Study.deleteMany({'answerId': answerRequestId}, function (errTwo, docsTwo) {
+                        if (errTwo) return console.error(errTwo);
+                        console.log("Deleted second" + docsTwo);
+                    });
 
                     Answer.findOneAndDelete({'answerId': answerRequestId}, function (errThree, answer) {
                         if (errThree) return console.error(errThree);
@@ -613,7 +643,20 @@ app.post("/answerDel", function (req, response){
 });
 
 app.get("/userGet", function (req, response){
-    response.render("subjectGet", {accountName: currentUser});
+    response.render("userGet", {accountName: currentUser});
+});
+
+app.get("/getUsers", function (req, response){
+    const User = mongoose.model('logins', LoginSchema);
+    let test;
+
+    User.find({},  {_id:0, __v:0} ,function (err, docs) {
+
+        test = docs;
+        console.log(test);
+        response.render("homePage", {accountName: currentUser, docs: test})
+    });
+
 });
 
 app.get("/userDel", function (req, response){
@@ -628,6 +671,8 @@ app.post("/userDel", function (req, response){
     const Question = mongoose.model('questions', QuestionSchema);
 
     const Answer = mongoose.model('answers', answerSchema);
+
+    const Study = mongoose.model('studyguides', studySchema);
 
     async function run() {
         try {
@@ -645,6 +690,11 @@ app.post("/userDel", function (req, response){
                     Answer.deleteMany({'userId': docs[0].id}, function (errTwo, docsThree) {
                         if (errTwo) return console.error(errTwo);
                         console.log("Deleted second" + docsThree);
+                    });
+
+                    Study.deleteMany({'userId': docs[0].id}, function (errTwo, docsTwo) {
+                        if (errTwo) return console.error(errTwo);
+                        console.log("Deleted third" + docsTwo);
                     });
 
                     User.findOneAndDelete({'username': userRequest}, function (errThree, username) {

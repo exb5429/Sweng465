@@ -15,11 +15,11 @@
 
     <div class="inner center">
             <% for(var i=0; i<docs.length; i++) {%>
-                <button  name="questionSelect" type='submit' value='<%= docs[i].id %>' ><%= docs[i].question %></button>
+                <div><b>User:</b> <%= docs[i].username %></div>
+                <button  name="questionSelect" type='submit' value='<%= docs[i].id %>' ><b>Question:</b> <%= docs[i].question %></button>
 
-            <div><%= docs[i].username %></div>
 
-            <br><br><br><br>
+            <br><br><br>
             <% } %>
 
 

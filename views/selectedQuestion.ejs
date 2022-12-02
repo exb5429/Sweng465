@@ -40,21 +40,28 @@
 
 <body>
 <div class="center">
-<p><%- questionDocs[0].question %></p>
-<p><%- questionDocs[0].username %></p>
+    <p><b>User:</b> <%- questionDocs[0].username %></p>
+    <p><b>Asks:</b> <%- questionDocs[0].question %></p>
 
 <h2>Answers</h2>
 
 <form action="/addStudy" method="post">
     <% for(var i=0; i<answerDocs.length; i++) {%>
         <div>
-        <p><%= answerDocs[i].answer %></p>
-        <p><%= answerDocs[i].user %></p>
-            <br><br><br>
+            <p><b>User:</b> <%= answerDocs[i].user %></p>
+            <p><b>Answers:</b> <%= answerDocs[i].answer %></p>
         </div>
         <button  name="studySelect" type='submit' value='<%= answerDocs[i].answerId %>' >Add this answer and question to study guide.</button>
-        <br><br><br><br>
+        <br><br><br>
     <% } %>
+</form>
+
+<form action = "/addAnswer" method="Post">
+    <label for="answer">Post an Answer</label>
+    <input type="text" id="answer" name="answer">
+    <br><br>
+
+    <button type="submit" class="btn btn-primary" id="questionId" name="questionId" value='<%= questionDocs[0].id %>'>Post Answer</button>
 </form>
 </div>
 

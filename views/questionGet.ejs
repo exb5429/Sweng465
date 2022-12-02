@@ -1,0 +1,11 @@
+<%- include('header.ejs') %>
+<body>
+
+<form action = "/getQuestions" method="Post">
+    <label for="username">User</label>
+    <input type="text" id="user" name="user">
+    <button type="submit" class="btn btn-primary">Get Questions</button>
+</form>
+
+</body>
+<%- include('footer.ejs') %>
