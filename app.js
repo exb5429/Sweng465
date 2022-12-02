@@ -60,18 +60,6 @@ var LoginSchema = mongoose.Schema({
     isAdmin: Boolean
 });
 
-LoginSchema.methods.getUsername = function () {
-    return this.username;
-}
-
-LoginSchema.methods.getPassword = function () {
-    return this.password;
-}
-
-LoginSchema.methods.getPassword = function () {
-    return this.id;
-}
-
 var LoginModel = mongoose.model("logins",LoginSchema);
 
 var currentUser = "Account";
@@ -88,20 +76,15 @@ var QuestionSchema = mongoose.Schema({
     subject :String
 });
 
-
-QuestionSchema.methods.getUsername = function () {
-    return this.username;
-}
-
-QuestionSchema.methods.getQuestion = function () {
-    return this.question;
-}
-
-QuestionSchema.methods.getSubject = function () {
-    return this.subject;
-}
-
 var PostQuestionModel = mongoose.model("questions",QuestionSchema);
+
+var likesSchema = mongoose.Schema({
+    likes: Number,
+    userId: Number,
+    answerId: Number
+});
+
+var likesModel = mongoose.model("likes",likesSchema);
 
 mongoose.connect("mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority");
 
@@ -830,25 +813,97 @@ app.post("/signin", AuthSignUp_passport.authenticate('localTwo',{
     res.render("login", {accountName: currentUser, admin: admin});
 });
 
+var currentQuestion;
+
 app.post("/findQuestion", function (req, response){
     var questionSelected = req.body.questionSelect;
+    currentQuestion = questionSelected;
 
+    const Like = mongoose.model('like', likesSchema);
     const Question = mongoose.model('questions', QuestionSchema);
     const Answer = mongoose.model('answers', answerSchema);
     Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, questionDocs) {
 
         Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
 
-            console.log(questionDocs)
-            response.render("selectedQuestion", {
+            Like.find({},{ likes:1,_id:0, __v:0},function(err, likeDocs){
+                console.log(questionDocs)
+                response.render("selectedQuestion", {
 
-                accountName: currentUser,
-                questionDocs: questionDocs,
-                answerDocs: answerDocs,
-                admin: admin
+                    accountName: currentUser,
+                    questionDocs: questionDocs,
+                    answerDocs: answerDocs,
+                    admin: admin,
+                    likeDocs: likeDocs
+                })
             })
         });
     });
+
+});
+
+app.post("/likePost", function (req, response) {
+    var questionSelected = currentQuestion;
+    let likeCount
+
+
+    const Question = mongoose.model('questions', QuestionSchema);
+    const Answer = mongoose.model('answers', answerSchema);
+    const Like = mongoose.model('like', likesSchema);
+
+    Like.countDocuments({}, function(err, count){
+        likeCount = count
+    });
+
+    Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, questionDocs) {
+
+        Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
+            Like.find({userId: currentId},{ _id:0, __v:0},function(err, likeDocs){
+                console.log("\n\n\n\n" + likeDocs + "\n\n\n\n")
+                if (!likeDocs)
+                {
+
+                    //change to answer ID
+                    let New = likesModel({
+                        likes: (likeCount + 1),
+                        userId: currentId,
+                        answerId: answerDocs.answerId
+                    });
+
+                    New.save(function (err) {
+                        if (err) return console.error(err);
+
+                    });
+
+
+                    response.render("selectedQuestion", {
+
+                        accountName: currentUser,
+                        questionDocs: questionDocs,
+                        answerDocs: answerDocs,
+                        admin: admin,
+                        likeDocs: likeDocs
+                    })
+                }
+                else{
+                    Like.findOneAndDelete({userId: currentId}, function (errThree, deletingLikes) {
+                        if (errThree) return console.error(errThree);
+                        console.log("Deleted " + deletingLikes);
+                    });
+                    response.render("selectedQuestion", {
+
+                        accountName: currentUser,
+                        questionDocs: questionDocs,
+                        answerDocs: answerDocs,
+                        admin: admin,
+                        likeDocs: likeDocs
+                    })
+
+                }
+            })
+        });
+    });
+
 
 });
 
