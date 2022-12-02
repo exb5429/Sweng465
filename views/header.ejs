@@ -29,6 +29,9 @@
                         <li><a class="dropdown-item" href="/searchQuestion">Find A Question</a></li>
                     </ul>
                 </li>
+                <% if (admin == true) {%>
+                 <div>
+
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Admin
@@ -46,6 +49,8 @@
                         <li><a class="dropdown-item" href="/userDel">User Delete</a></li>
                     </ul>
                 </li>
+                </div>
+        <% } %>
             </ul>
 
             <form class="d-flex text-light" id="accountButton" role="button" onload="changeAccountBtn()">

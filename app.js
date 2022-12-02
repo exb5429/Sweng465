@@ -56,7 +56,8 @@ var answerModel = mongoose.model("answers",answerSchema);
 var LoginSchema = mongoose.Schema({
     username :String,
     password :String,
-    id: Number
+    id: Number,
+    isAdmin: Boolean
 });
 
 LoginSchema.methods.getUsername = function () {
@@ -77,6 +78,7 @@ var currentUser = "Account";
 var currentPassword;
 var loggedIn = false;
 var currentId;
+var admin = false;
 
 var QuestionSchema = mongoose.Schema({
     id : Number,
@@ -120,6 +122,10 @@ Auth_passport.use('local', new LocalStrategy(
                 currentUser = User.username;
                 currentPassword = User.password;
                 currentId = User.id;
+                if (User.isAdmin === true){
+                    admin = true
+                }
+                else admin = false;
                 return done(null, User);
             }
         } catch (e) {
@@ -161,7 +167,7 @@ app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, "/public")));
 
 app.get("/", function (req, response){
-    response.render("homePage", {accountName: currentUser});
+    response.render("homePage", {accountName: currentUser, admin: admin});
 });
 
 app.post("/addStudy", async function(req, res) {
@@ -236,10 +242,10 @@ app.post("/addStudy", async function(req, res) {
 
         });
 
-        res.render("homePage", {accountName: currentUser});
+        res.render("homePage", {accountName: currentUser, admin: admin});
     }
     else {
-        res.render("login", {accountName: currentUser});
+        res.render("login", {accountName: currentUser, admin: admin});
     }
 });
 
@@ -251,13 +257,15 @@ app.get("/studyGuide", function (req, response){
             console.log(docs);
             response.render("studyGuide", {
                 accountName: currentUser,
-                studyDocs: docs
+                studyDocs: docs,
+                admin: admin
             });
         });
     }
     else{
         response.render("studyGuideLogin", {
             accountName: currentUser,
+            admin: admin
         });
     }
 
@@ -272,7 +280,8 @@ app.get("/postQuestion", function (req, response){
 
         response.render("postQuestion", {
             accountName: currentUser,
-            docs: docs
+            docs: docs,
+            admin: admin
         });
 
     });
@@ -280,7 +289,7 @@ app.get("/postQuestion", function (req, response){
 });
 
 app.get("/questionGet", function (req, response){
-    response.render("questionGet", {accountName: currentUser});
+    response.render("questionGet", {accountName: currentUser, admin: admin});
 });
 
 app.get("/getQuestions", function (req, response){
@@ -292,7 +301,9 @@ app.get("/getQuestions", function (req, response){
 
         test = docs;
         console.log(test);
-        response.render("homePage", {accountName: currentUser, docs: test})
+        response.render("homePage", {accountName: currentUser,
+            docs: test,
+            admin: admin})
     });
 
 });
@@ -353,15 +364,15 @@ app.post("/postQuestion", async function(req, res) {
 
         });
 
-        res.render("homePage", {accountName: currentUser});
+        res.render("homePage", {accountName: currentUser, admin: admin});
     }
     else {
-        res.render("login", {accountName: currentUser});
+        res.render("login", {accountName: currentUser, admin: admin});
     }
 });
 
 app.get("/questionDel", function (req, response){
-    response.render("questionDel", {accountName: currentUser});
+    response.render("questionDel", {accountName: currentUser, admin: admin});
 });
 
 app.post("/questionDel", function (req, response){
@@ -406,19 +417,19 @@ app.post("/questionDel", function (req, response){
 
     run().catch(console.dir);
 
-    response.render("questionDel", {accountName: currentUser});
+    response.render("questionDel", {accountName: currentUser, admin: admin});
 });
 
 app.get("/login", function (req, response){
-    response.render("login", {accountName: currentUser});
+    response.render("login", {accountName: currentUser, admin: admin});
 });
 
 app.get("/signup", function (req, response){
-    response.render("signup", {accountName: currentUser});
+    response.render("signup", {accountName: currentUser, admin: admin});
 });
 
 app.get("/loginFail", function (req, response){
-    response.render("loginFail", {accountName: currentUser});
+    response.render("loginFail", {accountName: currentUser, admin: admin});
 });
 
 app.get("/searchQuestion", function (req, response){
@@ -431,7 +442,8 @@ app.get("/searchQuestion", function (req, response){
         response.render("searchQuestion", {
             questions: PostQuestionModel,
             accountName: currentUser,
-            docs: subjects
+            docs: subjects,
+            admin: admin
         });
 
     });
@@ -439,7 +451,7 @@ app.get("/searchQuestion", function (req, response){
 });
 
 app.get("/selectedQuestion", function (req, response){
-    response.render("selectedQuestion", {accountName: currentUser});
+    response.render("selectedQuestion", {accountName: currentUser, admin: admin});
 });
 
 app.post("/searchQuestions", function (req, response){
@@ -450,21 +462,22 @@ app.post("/searchQuestions", function (req, response){
         console.log(docs[0].username)
         response.render("questionList", {accountName: currentUser,
         docs: docs,
-        subject: subjectRequest})
+        subject: subjectRequest,
+            admin: admin})
     });
 
 });
 
 app.get("/subjectGet", function (req, response){
-    response.render("subjectGet", {accountName: currentUser});
+    response.render("subjectGet", {accountName: currentUser, admin: admin});
 });
 
 app.get("/subjectPost", function (req, response){
-    response.render("subjectPost", {accountName: currentUser});
+    response.render("subjectPost", {accountName: currentUser, admin: admin});
 });
 
 app.get("/subjectDel", function (req, response){
-    response.render("subjectDel", {accountName: currentUser});
+    response.render("subjectDel", {accountName: currentUser, admin: admin});
 });
 
 app.get("/getSubjects", function (req, response){
@@ -475,7 +488,9 @@ app.get("/getSubjects", function (req, response){
 
        test = docs;
        console.log(test);
-       response.render("homePage", {accountName: currentUser, docs: test})
+       response.render("homePage", {accountName: currentUser,
+           docs: test,
+           admin: admin})
     });
 
 });
@@ -492,7 +507,7 @@ app.post("/addSubject", function (req, response){
         console.log(subjectRequest + " added");
     });
     console.log("Add Subject:  " + subjectRequest)
-    response.render("homePage", {accountName: currentUser})
+    response.render("homePage", {accountName: currentUser, admin: admin})
 });
 
 app.post("/delSubject", function (req, response){
@@ -503,15 +518,15 @@ app.post("/delSubject", function (req, response){
         if (err) return handleError(err);
         console.log("Deleted " + subject);
     });
-    response.render("homePage", {accountName: currentUser})
+    response.render("homePage", {accountName: currentUser, admin: admin})
 });
 
 app.get("/answerGet", function (req, response){
-    response.render("answerGet", {accountName: currentUser});
+    response.render("answerGet", {accountName: currentUser, admin: admin});
 });
 
 app.get("/answerPost", function (req, response){
-    response.render("answerPost", {accountName: currentUser});
+    response.render("answerPost", {accountName: currentUser, admin: admin});
 });
 
 app.post("/getAnswers", function (req, response){
@@ -531,7 +546,7 @@ app.post("/getAnswers", function (req, response){
 
 
 
-    response.render("homePage", {accountName: currentUser})
+    response.render("homePage", {accountName: currentUser, admin: admin})
 });
 
 app.post("/addAnswer", function (req, response){
@@ -592,16 +607,16 @@ app.post("/addAnswer", function (req, response){
 
         });
 
-        response.render("homePage", {accountName: currentUser});
+        response.render("homePage", {accountName: currentUser, admin: admin});
     }
     else {
 
-        response.render("login", {accountName: currentUser});
+        response.render("login", {accountName: currentUser, admin: admin});
     }
 });
 
 app.get("/answerDel", function (req, response){
-    response.render("answerDel", {accountName: currentUser});
+    response.render("answerDel", {accountName: currentUser, admin: admin});
 });
 
 app.post("/answerDel", function (req, response){
@@ -639,11 +654,11 @@ app.post("/answerDel", function (req, response){
 
     run().catch(console.dir);
 
-    response.render("answerDel", {accountName: currentUser});
+    response.render("answerDel", {accountName: currentUser, admin: admin});
 });
 
 app.get("/userGet", function (req, response){
-    response.render("userGet", {accountName: currentUser});
+    response.render("userGet", {accountName: currentUser, admin: admin});
 });
 
 app.get("/getUsers", function (req, response){
@@ -654,13 +669,16 @@ app.get("/getUsers", function (req, response){
 
         test = docs;
         console.log(test);
-        response.render("homePage", {accountName: currentUser, docs: test})
+        response.render("homePage", {accountName: currentUser,
+            docs: test,
+            admin: admin})
     });
 
 });
 
 app.get("/userDel", function (req, response){
-    response.render("userDel", {accountName: currentUser});
+    response.render("userDel", {accountName: currentUser,
+        admin: admin});
 });
 
 app.post("/userDel", function (req, response){
@@ -711,7 +729,8 @@ app.post("/userDel", function (req, response){
 
     run().catch(console.dir);
 
-    response.render("userDel", {accountName: currentUser});
+    response.render("userDel", {accountName: currentUser,
+        admin: admin});
 });
 
 app.post("/login",Auth_passport.authenticate('local',{
@@ -755,7 +774,7 @@ app.post("/signin", AuthSignUp_passport.authenticate('localTwo',{
                     }
                 }
             } finally {
-                let New = LoginModel({username:newUser,password:newPassword, id:idNum});
+                let New = LoginModel({username:newUser,password:newPassword, id:idNum, isAdmin: false});
 
                 New.save(function (err) {
                     if (err) return console.error(err);
@@ -771,7 +790,7 @@ app.post("/signin", AuthSignUp_passport.authenticate('localTwo',{
         run().catch(console.dir);
     });
 
-    res.render("login", {accountName: currentUser});
+    res.render("login", {accountName: currentUser, admin: admin});
 });
 
 app.post("/findQuestion", function (req, response){
@@ -788,7 +807,8 @@ app.post("/findQuestion", function (req, response){
 
                 accountName: currentUser,
                 questionDocs: questionDocs,
-                answerDocs: answerDocs
+                answerDocs: answerDocs,
+                admin: admin
             })
         });
     });
@@ -796,7 +816,7 @@ app.post("/findQuestion", function (req, response){
 });
 
 app.get("*", function (req, response){
-    response.render("error", {accountName: currentUser});
+    response.render("error", {accountName: currentUser, admin: admin});
 });
 
 app.listen(3000, function(req,resp){
