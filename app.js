@@ -827,7 +827,7 @@ app.post("/findQuestion", function (req, response){
         Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
 
             Like.find({},{ likes:1,_id:0, __v:0},function(err, likeDocs){
-                console.log(questionDocs)
+                console.log(likeDocs)
                 response.render("selectedQuestion", {
 
                     accountName: currentUser,
@@ -845,51 +845,51 @@ app.post("/findQuestion", function (req, response){
 app.post("/likePost", function (req, response) {
     var questionSelected = currentQuestion;
     let likeCount
+    var answerSelected = req.body.like;
 
 
     const Question = mongoose.model('questions', QuestionSchema);
     const Answer = mongoose.model('answers', answerSchema);
     const Like = mongoose.model('like', likesSchema);
 
-    Like.countDocuments({}, function(err, count){
+    Like.countDocuments({answerId: answerSelected}, function(err, count){
         likeCount = count
     });
 
     Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, questionDocs) {
 
         Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
-            Like.find({userId: currentId},{ _id:0, __v:0},function(err, likeDocs){
-                console.log("\n\n\n\n" + likeDocs + "\n\n\n\n")
-                if (!likeDocs)
-                {
 
-                    //change to answer ID
-                    let New = likesModel({
-                        likes: (likeCount + 1),
-                        userId: currentId,
-                        answerId: answerDocs.answerId
-                    });
+            Like.find({userId: currentId, answerId: answerSelected},{ _id:0, __v:0},function(err, likeDocs){
 
-                    New.save(function (err) {
-                        if (err) return console.error(err);
-
-                    });
-
-
-                    response.render("selectedQuestion", {
-
-                        accountName: currentUser,
-                        questionDocs: questionDocs,
-                        answerDocs: answerDocs,
-                        admin: admin,
-                        likeDocs: likeDocs
-                    })
-                }
-                else{
+                if (likeDocs.length){
+                    console.log("delete")
                     Like.findOneAndDelete({userId: currentId}, function (errThree, deletingLikes) {
-                        if (errThree) return console.error(errThree);
-                        console.log("Deleted " + deletingLikes);
-                    });
+                            if (errThree) return console.error(errThree);
+                            console.log("Deleted " + deletingLikes);
+                        });
+
+                        response.render("selectedQuestion", {
+
+                            accountName: currentUser,
+                            questionDocs: questionDocs,
+                            answerDocs: answerDocs,
+                            admin: admin,
+                            likeDocs: likeDocs
+                        })
+
+                }  else {
+                    console.log("add")
+                    let New = likesModel({
+                                likes: (likeCount + 1),
+                                userId: currentId,
+                                answerId: answerSelected
+                            });
+
+                            New.save(function (err) {
+                                if (err) return console.error(err);
+
+                            });
                     response.render("selectedQuestion", {
 
                         accountName: currentUser,
@@ -898,8 +898,8 @@ app.post("/likePost", function (req, response) {
                         admin: admin,
                         likeDocs: likeDocs
                     })
-
                 }
+
             })
         });
     });
