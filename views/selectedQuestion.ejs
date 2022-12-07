@@ -45,22 +45,23 @@
 
 <h2>Answers</h2>
 
-<form action="/addStudy" method="post">
-    <% for(var i=0; i<answerDocs.length; i++) {%>
+
+<% for(var i=0; i<answerDocs.length; i++) {%>
+    <form action="/addStudy" method="post">
         <div>
             <p><b>User:</b> <%= answerDocs[i].user %></p>
             <p><b>Answers:</b> <%= answerDocs[i].answer %></p>
         </div>
         <button  name="studySelect" type='submit' value='<%= answerDocs[i].answerId %>' >Add this answer and question to study guide.</button>
-        <br><br><br>
-</form>
+        <br>
+    </form>
     <form action = "/likePost" method="Post">
         <label for="like">Like</label>
         <button type="submit" value='<%= answerDocs[i].answerId %>' id="like" name="like"></button>
-        <br>
+        <br><br><br>
     </form>
 
-    <% } %>
+<% } %>
 
 <form action = "/addAnswer" method="Post">
     <label for="answer">Post an Answer</label>

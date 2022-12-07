@@ -404,6 +404,8 @@ app.post("/questionDel", function (req, response){
 
     const Study = mongoose.model('studyguides', studySchema);
 
+    const Like = mongoose.model('like', likesSchema);
+
     async function run() {
         try {
             await Question.find({'id': questionRequestId}, function(err, docs){
@@ -412,6 +414,29 @@ app.post("/questionDel", function (req, response){
                     return console.log("Could not find question");
                 }
                 else{
+                    async function find() {
+                        await Answer.find({'questionID': docs[0].id}, {_id: 0, __v: 0}, function (err, answerDocs) {
+                            if (err) return console.error(err);
+                            if (answerDocs[0] == null || answerDocs[0] == undefined) {
+                                return console.log("Could not find answers");
+                            }
+                            else{
+                                for(var i = 0; i < answerDocs.length; i++){
+                                    Like.deleteMany({'answerId': answerDocs[i].answerId}, function (errTwo, docsThree) {
+                                        if (errTwo) return console.error(errTwo);
+                                        console.log("Deleted likes" + docsThree);
+                                    });
+
+                                    Study.deleteMany({'answerId': answerDocs[j].id}, function (errOne, docsThree) {
+                                        if (errOne) return console.error(errOne);
+                                        console.log("Deleted first" + docsThree);
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+                    find().catch(console.dir);
 
                     Answer.deleteMany({'questionID': docs[0].id}, function (errOne, docsThree) {
                         if (errOne) return console.error(errOne);
@@ -479,13 +504,29 @@ app.post("/searchQuestions", function (req, response){
     const Question = mongoose.model('questions', QuestionSchema);
 
     Question.find({'subject': subjectRequest}, { _id:0, __v:0},function (err, docs) {
-        console.log(docs[0].username)
-        response.render("questionList", {accountName: currentUser,
-        docs: docs,
-        subject: subjectRequest,
-            admin: admin})
+        if (err) return console.error(err);
+        if (docs[0] == null || docs[0] == undefined){
+            console.log("Could not find questions in this subject.");
+            response.render("subjectNo", {
+                accountName: currentUser,
+                admin: admin
+            })
+        }
+        else {
+            console.log(docs[0].username)
+            response.render("questionList", {
+                accountName: currentUser,
+                docs: docs,
+                subject: subjectRequest,
+                admin: admin
+            })
+        }
     });
 
+});
+
+app.get("/subjectNo", function (req, response){
+    response.render("subjectNo", {accountName: currentUser, admin: admin});
 });
 
 app.get("/subjectGet", function (req, response){
@@ -646,6 +687,8 @@ app.post("/answerDel", function (req, response){
 
     const Study = mongoose.model('studyguides', studySchema);
 
+    const Like = mongoose.model('like', likesSchema);
+
     async function run() {
         try {
             await Answer.find({'answerId': answerRequestId}, function(err, docs){
@@ -658,6 +701,11 @@ app.post("/answerDel", function (req, response){
                     Study.deleteMany({'answerId': answerRequestId}, function (errTwo, docsTwo) {
                         if (errTwo) return console.error(errTwo);
                         console.log("Deleted second" + docsTwo);
+                    });
+
+                    Like.deleteMany({'answerId': answerRequestId}, function (errTwo, docsThree) {
+                        if (errTwo) return console.error(errTwo);
+                        console.log("Deleted likes" + docsThree);
                     });
 
                     Answer.findOneAndDelete({'answerId': answerRequestId}, function (errThree, answer) {
@@ -712,6 +760,8 @@ app.post("/userDel", function (req, response){
 
     const Study = mongoose.model('studyguides', studySchema);
 
+    const Like = mongoose.model('like', likesSchema);
+
     async function run() {
         try {
             await User.find({'username': userRequest}, function(err, docs){
@@ -720,24 +770,110 @@ app.post("/userDel", function (req, response){
                     return console.log("Could not find user");
                 }
                 else{
+
+                    async function findOne() {
+
+                        await Question.find({'askId': docs[0].id}, function(err, docsQuest){
+                            if (err) return console.error(err);
+                            if (docs[0] == null || docs[0] == undefined){
+                                return console.log("Could not find any questions");
+                            }
+                            else{
+                                for(var i = 0; i < docsQuest.length; i++) {
+                                    async function findTwo() {
+
+                                        await Answer.find({'questionID': docsQuest[i].id}, {
+                                            _id: 0,
+                                            __v: 0
+                                        }, function (err, answerDocs) {
+                                            if (err) return console.error(err);
+                                            if (answerDocs[0] == null || answerDocs[0] == undefined) {
+                                                return console.log("Could not find answers");
+                                            } else {
+                                                for (var j = 0; j < answerDocs.length; j++) {
+                                                    Like.deleteMany({'answerId': answerDocs[j].answerId}, function (errTwo, docsThree) {
+                                                        if (errTwo) return console.error(errTwo);
+                                                        console.log("Deleted likes" + docsThree);
+                                                    });
+
+                                                    Study.deleteMany({'answerId': answerDocs[j].answerId}, function (errOne, docsThree) {
+                                                        if (errOne) return console.error(errOne);
+                                                        console.log("Deleted first" + docsThree);
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    }
+
+                                    findTwo().catch(console.dir);
+
+                                    Answer.deleteMany({'questionID': docsQuest[i].id}, function (errOne, docsThree) {
+                                        if (errOne) return console.error(errOne);
+                                        console.log("Deleted first" + docsThree);
+                                    });
+
+                                    Study.deleteMany({'questionID': docsQuest[i].id}, function (errOne, docsThree) {
+                                        if (errOne) return console.error(errOne);
+                                        console.log("Deleted first" + docsThree);
+                                    });
+                                }
+                            }
+                        });
+
+                    }
+
+                    findOne().catch(console.dir);
+
                     Question.deleteMany({'askId': docs[0].id}, function (errTwo, docsThree) {
                         if (errTwo) return console.error(errTwo);
-                        console.log("Deleted first" + docsThree);
+                        console.log("Deleted question" + docsThree);
                     });
+
+                    async function findThree() {
+
+                        await Answer.find({'userId': docs[0].id}, {
+                            _id: 0,
+                            __v: 0
+                        }, function (err, answerDocs) {
+                            if (err) return console.error(err);
+                            if (docs[0] == null || docs[0] == undefined) {
+                                return console.log("Could not find answers");
+                            } else {
+                                for (var j = 0; j < answerDocs.length; j++) {
+                                    Like.deleteMany({'answerId': answerDocs[j].answerId}, function (errTwo, docsThree) {
+                                        if (errTwo) return console.error(errTwo);
+                                        console.log("Deleted likes" + docsThree);
+                                    });
+
+                                    Study.deleteMany({'answerId': answerDocs[j].answerId}, function (errOne, docsThree) {
+                                        if (errOne) return console.error(errOne);
+                                        console.log("Deleted first" + docsThree);
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+                    findThree().catch(console.dir);
 
                     Answer.deleteMany({'userId': docs[0].id}, function (errTwo, docsThree) {
                         if (errTwo) return console.error(errTwo);
-                        console.log("Deleted second" + docsThree);
+                        console.log("Deleted answers" + docsThree);
+                    });
+
+                    Like.deleteMany({'userId': docs[0].id}, function (errTwo, docsThree) {
+                        if (errTwo) return console.error(errTwo);
+                        console.log("Deleted likes" + docsThree);
                     });
 
                     Study.deleteMany({'userId': docs[0].id}, function (errTwo, docsTwo) {
                         if (errTwo) return console.error(errTwo);
-                        console.log("Deleted third" + docsTwo);
+                        console.log("Deleted study guide entries" + docsTwo);
                     });
 
                     User.findOneAndDelete({'username': userRequest}, function (errThree, username) {
                         if (errThree) return console.error(errThree);
-                        console.log("Deleted third" + username);
+                        console.log("Deleted user" + username);
                     });
                 }
             });
