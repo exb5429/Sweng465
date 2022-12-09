@@ -149,10 +149,23 @@ AuthSignUp_passport.use('localTwo', new LocalStrategyTwo(
 app.use(morgan('dev'));
 app.use(express.static(path.join(__dirname, "/public")));
 
+// ----------------------------- Miscellaneous HTTP Methods --------------------------------------------------------
 app.get("/", function (req, response){
     response.render("homePage", {accountName: currentUser, admin: admin});
 });
 
+app.get("*", function (req, response){
+    response.render("error", {accountName: currentUser, admin: admin});
+});
+
+app.listen(3000, function(req,resp){
+    console.log("Server Running");
+});
+// ----------------------------- End of Miscellaneous HTTP Methods --------------------------------------------------------
+
+
+
+//-------------------------------- Study Guide HTTP Methods ------------------------------------------------
 app.post("/addStudy", async function(req, res) {
     if (loggedIn) {
         var user = currentUser;
@@ -290,7 +303,11 @@ app.get("/studyGuide", function (req, response){
     }
 
 });
+//-------------------------------- End of Study Guide HTTP Methods ------------------------------------------------
 
+
+
+//-------------------------------- Question HTTP Methods ------------------------------------------------
 app.get("/postQuestion", function (req, response){
     const Subject = mongoose.model('subjects', subjectSchema);
 
@@ -465,18 +482,6 @@ app.post("/questionDel", function (req, response){
     response.render("questionDel", {accountName: currentUser, admin: admin});
 });
 
-app.get("/login", function (req, response){
-    response.render("login", {accountName: currentUser, admin: admin});
-});
-
-app.get("/signup", function (req, response){
-    response.render("signup", {accountName: currentUser, admin: admin});
-});
-
-app.get("/loginFail", function (req, response){
-    response.render("loginFail", {accountName: currentUser, admin: admin});
-});
-
 app.get("/searchQuestion", function (req, response){
     const Subject = mongoose.model('subjects', subjectSchema);
     let subjects;
@@ -525,204 +530,49 @@ app.post("/searchQuestions", function (req, response){
 
 });
 
-app.get("/subjectNo", function (req, response){
-    response.render("subjectNo", {accountName: currentUser, admin: admin});
-});
+var currentQuestion;
 
-app.get("/subjectGet", function (req, response){
-    response.render("subjectGet", {accountName: currentUser, admin: admin});
-});
-
-app.get("/subjectPost", function (req, response){
-    response.render("subjectPost", {accountName: currentUser, admin: admin});
-});
-
-app.get("/subjectDel", function (req, response){
-    response.render("subjectDel", {accountName: currentUser, admin: admin});
-});
-
-app.get("/getSubjects", function (req, response){
-    const Subject = mongoose.model('subjects', subjectSchema);
-    let test;
-
-    Subject.find({},  {_id:0, __v:0} ,function (err, docs) {
-
-       test = docs;
-       console.log(test);
-       response.render("homePage", {accountName: currentUser,
-           docs: test,
-           admin: admin})
-    });
-
-});
-
-app.post("/addSubject", function (req, response){
-    var subjectRequest = req.body.subject;
-    console.log(subjectRequest)
-    let New = subjectModel({
-        subject: subjectRequest
-    });
-
-    New.save(function (err) {
-        if (err) return console.error(err);
-        console.log(subjectRequest + " added");
-    });
-    console.log("Add Subject:  " + subjectRequest)
-    response.render("homePage", {accountName: currentUser, admin: admin})
-});
-
-app.post("/delSubject", function (req, response){
-    var subjectRequest = req.body.subject;
-    const Subject = mongoose.model('subjects', subjectSchema);
-
-    Subject.findOneAndDelete({ 'subject': subjectRequest }, function (err, subject) {
-        if (err) return handleError(err);
-        console.log("Deleted " + subject);
-    });
-    response.render("homePage", {accountName: currentUser, admin: admin})
-});
-
-app.get("/answerGet", function (req, response){
-    response.render("answerGet", {accountName: currentUser, admin: admin});
-});
-
-app.get("/answerPost", function (req, response){
-    response.render("answerPost", {accountName: currentUser, admin: admin});
-});
-
-app.post("/getAnswers", function (req, response){
-    const Answer = mongoose.model('answers', answerSchema);
-    var questionId = req.body.questionId;
-
-    Answer.find({ 'questionID': questionId}, { _id:0, __v:0} ,function (err, docs) {
-        console.log(docs)
-    });
-
-    const Question = mongoose.model('questions', QuestionSchema);
-
-
-    Question.find({ 'id': questionId}, { id: 0, askId:0, username:0, subject:0,_id:0, __v:0} ,function (err, docs) {
-        console.log(docs)
-    });
-
-
-
-    response.render("homePage", {accountName: currentUser, admin: admin})
-});
-
-app.post("/addAnswer", function (req, response){
-    if (loggedIn) {
-        var answer = req.body.answer;
-        var questionId = req.body.questionId;
-
-        var idNum = 1;
-        var idAvailable = false;
-        answerModel.countDocuments({}, function (err, count) {
-
-            const uri = "mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority";
-            const client = new MongoClient(uri);
-            async function run() {
-                try {
-                    await client.connect();
-                    // database and collection code goes here
-                    const db = client.db("test");
-                    const coll = db.collection("answers");
-                    // find code goes here
-
-                    while(!idAvailable) {
-                        const cursor = coll.find({answerId: idNum});
-                        //await cursor.forEach(console.log);
-                        //const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
-                        // iterate code goes here
-                        if (await cursor.count() > 0) {
-                            idNum += 1;
-                        }
-                        else{
-                            idAvailable = true;
-                        }
-                    }
-                } finally {
-                    let New = answerModel({
-                        user: currentUser,
-                        userId: currentId,
-                        questionID: questionId,
-                        answerId: idNum,
-                        answer: answer
-                    });
-
-                    New.save(function (err) {
-                        if (err) return console.error(err);
-                        console.log("Answer added is " + answer);
-                        console.log("Question id is " + questionId);
-                        console.log("Answer id is " + idNum);
-                        console.log("User is " + currentUser);
-                    });
-
-                    // Ensures that the client will close when you finish/error
-                    await client.close();
-                }
-
-            }
-
-            run().catch(console.dir);
-
-        });
-
-        response.render("homePage", {accountName: currentUser, admin: admin});
-    }
-    else {
-
-        response.render("login", {accountName: currentUser, admin: admin});
-    }
-});
-
-app.get("/answerDel", function (req, response){
-    response.render("answerDel", {accountName: currentUser, admin: admin});
-});
-
-app.post("/answerDel", function (req, response){
-    var answerRequestId = req.body.answer;
-
-    const Answer = mongoose.model('answers', answerSchema);
-
-    const Study = mongoose.model('studyguides', studySchema);
+app.post("/findQuestion", function (req, response){
+    var questionSelected = req.body.questionSelect;
+    currentQuestion = questionSelected;
 
     const Like = mongoose.model('like', likesSchema);
+    const Question = mongoose.model('questions', QuestionSchema);
+    const Answer = mongoose.model('answers', answerSchema);
+    Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, questionDocs) {
 
-    async function run() {
-        try {
-            await Answer.find({'answerId': answerRequestId}, function(err, docs){
-                if (err) return console.error(err);
-                if (docs[0] == null || docs[0] == undefined){
-                    return console.log("Could not find answer");
-                }
-                else{
+        Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
 
-                    Study.deleteMany({'answerId': answerRequestId}, function (errTwo, docsTwo) {
-                        if (errTwo) return console.error(errTwo);
-                        console.log("Deleted second" + docsTwo);
-                    });
+            Like.find({},{ likes:1,_id:0, __v:0},function(err, likeDocs){
+                console.log(likeDocs)
+                response.render("selectedQuestion", {
 
-                    Like.deleteMany({'answerId': answerRequestId}, function (errTwo, docsThree) {
-                        if (errTwo) return console.error(errTwo);
-                        console.log("Deleted likes" + docsThree);
-                    });
+                    accountName: currentUser,
+                    questionDocs: questionDocs,
+                    answerDocs: answerDocs,
+                    admin: admin,
+                    likeDocs: likeDocs
+                })
+            })
+        });
+    });
 
-                    Answer.findOneAndDelete({'answerId': answerRequestId}, function (errThree, answer) {
-                        if (errThree) return console.error(errThree);
-                        console.log("Deleted third" + answer);
-                    });
-                }
-            });
+});
+//-------------------------------- End of Question HTTP Methods ------------------------------------------------
 
-        } catch (e) {
 
-        }
-    }
 
-    run().catch(console.dir);
+//-------------------------------- Login/Sign Up/User Related HTTP Methods ------------------------------------------------
+app.get("/login", function (req, response){
+    response.render("login", {accountName: currentUser, admin: admin});
+});
 
-    response.render("answerDel", {accountName: currentUser, admin: admin});
+app.get("/signup", function (req, response){
+    response.render("signup", {accountName: currentUser, admin: admin});
+});
+
+app.get("/loginFail", function (req, response){
+    response.render("loginFail", {accountName: currentUser, admin: admin});
 });
 
 app.get("/userGet", function (req, response){
@@ -908,7 +758,7 @@ app.post("/login",Auth_passport.authenticate('local',{
 app.post("/signin", AuthSignUp_passport.authenticate('localTwo',{
     failureRedirect: '/loginFail',
     session: false
-    }), async function(req, res){
+}), async function(req, res){
     var newUser = req.body.username;
     var newPassword = req.body.password;
     var idNum = 1;
@@ -957,36 +807,220 @@ app.post("/signin", AuthSignUp_passport.authenticate('localTwo',{
 
     res.render("login", {accountName: currentUser, admin: admin});
 });
+//-------------------------------- End of Login/Sign Up/User Related HTTP Methods ------------------------------------------------
 
-var currentQuestion;
 
-app.post("/findQuestion", function (req, response){
-    var questionSelected = req.body.questionSelect;
-    currentQuestion = questionSelected;
 
-    const Like = mongoose.model('like', likesSchema);
-    const Question = mongoose.model('questions', QuestionSchema);
-    const Answer = mongoose.model('answers', answerSchema);
-    Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, questionDocs) {
+//-------------------------------- Subject Related HTTP Methods -----------------------------------------------------------
+app.get("/subjectNo", function (req, response){
+    response.render("subjectNo", {accountName: currentUser, admin: admin});
+});
 
-        Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
+app.get("/subjectGet", function (req, response){
+    response.render("subjectGet", {accountName: currentUser, admin: admin});
+});
 
-            Like.find({},{ likes:1,_id:0, __v:0},function(err, likeDocs){
-                console.log(likeDocs)
-                response.render("selectedQuestion", {
+app.get("/subjectPost", function (req, response){
+    response.render("subjectPost", {accountName: currentUser, admin: admin});
+});
 
-                    accountName: currentUser,
-                    questionDocs: questionDocs,
-                    answerDocs: answerDocs,
-                    admin: admin,
-                    likeDocs: likeDocs
-                })
-            })
-        });
+app.get("/subjectDel", function (req, response){
+    response.render("subjectDel", {accountName: currentUser, admin: admin});
+});
+
+app.get("/getSubjects", function (req, response){
+    const Subject = mongoose.model('subjects', subjectSchema);
+    let test;
+
+    Subject.find({},  {_id:0, __v:0} ,function (err, docs) {
+
+       test = docs;
+       console.log(test);
+       response.render("homePage", {accountName: currentUser,
+           docs: test,
+           admin: admin})
     });
 
 });
 
+app.post("/addSubject", function (req, response){
+    var subjectRequest = req.body.subject;
+    console.log(subjectRequest)
+    let New = subjectModel({
+        subject: subjectRequest
+    });
+
+    New.save(function (err) {
+        if (err) return console.error(err);
+        console.log(subjectRequest + " added");
+    });
+    console.log("Add Subject:  " + subjectRequest)
+    response.render("homePage", {accountName: currentUser, admin: admin})
+});
+
+app.post("/delSubject", function (req, response){
+    var subjectRequest = req.body.subject;
+    const Subject = mongoose.model('subjects', subjectSchema);
+
+    Subject.findOneAndDelete({ 'subject': subjectRequest }, function (err, subject) {
+        if (err) return handleError(err);
+        console.log("Deleted " + subject);
+    });
+    response.render("homePage", {accountName: currentUser, admin: admin})
+});
+//-------------------------------- End of Subject Related HTTP Methods -----------------------------------------------------------
+
+
+
+//-------------------------------- Answer Related HTTP Methods -----------------------------------------------------------
+app.get("/answerGet", function (req, response){
+    response.render("answerGet", {accountName: currentUser, admin: admin});
+});
+
+app.get("/answerPost", function (req, response){
+    response.render("answerPost", {accountName: currentUser, admin: admin});
+});
+
+app.post("/getAnswers", function (req, response){
+    const Answer = mongoose.model('answers', answerSchema);
+    var questionId = req.body.questionId;
+
+    Answer.find({ 'questionID': questionId}, { _id:0, __v:0} ,function (err, docs) {
+        console.log(docs)
+    });
+
+    const Question = mongoose.model('questions', QuestionSchema);
+
+
+    Question.find({ 'id': questionId}, { id: 0, askId:0, username:0, subject:0,_id:0, __v:0} ,function (err, docs) {
+        console.log(docs)
+    });
+
+
+
+    response.render("homePage", {accountName: currentUser, admin: admin})
+});
+
+app.post("/addAnswer", function (req, response){
+    if (loggedIn) {
+        var answer = req.body.answer;
+        var questionId = req.body.questionId;
+
+        var idNum = 1;
+        var idAvailable = false;
+        answerModel.countDocuments({}, function (err, count) {
+
+            const uri = "mongodb+srv://test:test@cluster0.flru2.mongodb.net/?retryWrites=true&w=majority";
+            const client = new MongoClient(uri);
+            async function run() {
+                try {
+                    await client.connect();
+                    // database and collection code goes here
+                    const db = client.db("test");
+                    const coll = db.collection("answers");
+                    // find code goes here
+
+                    while(!idAvailable) {
+                        const cursor = coll.find({answerId: idNum});
+                        //await cursor.forEach(console.log);
+                        //const cursor = coll.find({ subject: subjectRequest}).project({question:1, _id:0} );
+                        // iterate code goes here
+                        if (await cursor.count() > 0) {
+                            idNum += 1;
+                        }
+                        else{
+                            idAvailable = true;
+                        }
+                    }
+                } finally {
+                    let New = answerModel({
+                        user: currentUser,
+                        userId: currentId,
+                        questionID: questionId,
+                        answerId: idNum,
+                        answer: answer
+                    });
+
+                    New.save(function (err) {
+                        if (err) return console.error(err);
+                        console.log("Answer added is " + answer);
+                        console.log("Question id is " + questionId);
+                        console.log("Answer id is " + idNum);
+                        console.log("User is " + currentUser);
+                    });
+
+                    // Ensures that the client will close when you finish/error
+                    await client.close();
+                }
+
+            }
+
+            run().catch(console.dir);
+
+        });
+
+        response.render("homePage", {accountName: currentUser, admin: admin});
+    }
+    else {
+
+        response.render("login", {accountName: currentUser, admin: admin});
+    }
+});
+
+app.get("/answerDel", function (req, response){
+    response.render("answerDel", {accountName: currentUser, admin: admin});
+});
+
+app.post("/answerDel", function (req, response){
+    var answerRequestId = req.body.answer;
+
+    const Answer = mongoose.model('answers', answerSchema);
+
+    const Study = mongoose.model('studyguides', studySchema);
+
+    const Like = mongoose.model('like', likesSchema);
+
+    async function run() {
+        try {
+            await Answer.find({'answerId': answerRequestId}, function(err, docs){
+                if (err) return console.error(err);
+                if (docs[0] == null || docs[0] == undefined){
+                    return console.log("Could not find answer");
+                }
+                else{
+
+                    Study.deleteMany({'answerId': answerRequestId}, function (errTwo, docsTwo) {
+                        if (errTwo) return console.error(errTwo);
+                        console.log("Deleted second" + docsTwo);
+                    });
+
+                    Like.deleteMany({'answerId': answerRequestId}, function (errTwo, docsThree) {
+                        if (errTwo) return console.error(errTwo);
+                        console.log("Deleted likes" + docsThree);
+                    });
+
+                    Answer.findOneAndDelete({'answerId': answerRequestId}, function (errThree, answer) {
+                        if (errThree) return console.error(errThree);
+                        console.log("Deleted third" + answer);
+                    });
+                }
+            });
+
+        } catch (e) {
+
+        }
+    }
+
+    run().catch(console.dir);
+
+    response.render("answerDel", {accountName: currentUser, admin: admin});
+});
+
+//-------------------------------- End of Answer Related HTTP Methods -----------------------------------------------------------
+
+
+
+//--------------------------------- Like Related HTTP Methods ----------------------------------------------------------------
 app.post("/likePost", function (req, response) {
     var questionSelected = currentQuestion;
     let likeCount
@@ -1051,11 +1085,4 @@ app.post("/likePost", function (req, response) {
 
 
 });
-
-app.get("*", function (req, response){
-    response.render("error", {accountName: currentUser, admin: admin});
-});
-
-app.listen(3000, function(req,resp){
-    console.log("Server Running");
-});
+//--------------------------------- End of Like Related HTTP Methods ----------------------------------------------------------------
