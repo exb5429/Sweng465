@@ -25,7 +25,7 @@ app.set("view engine", "ejs")
 
 var studySchema = mongoose.Schema({
     user: String,
-    userId: String,
+    userId: Number,
     question: String,
     questionId: Number,
     answer: String,
@@ -45,7 +45,7 @@ var subjectModel = mongoose.model("subjects",subjectSchema);
 
 var answerSchema = mongoose.Schema({
     user: String,
-    userId: String,
+    userId: Number,
     questionID: Number,
     answer: String,
     answerId: Number
@@ -427,7 +427,7 @@ app.post("/questionDel", function (req, response){
                                         console.log("Deleted likes" + docsThree);
                                     });
 
-                                    Study.deleteMany({'answerId': answerDocs[j].id}, function (errOne, docsThree) {
+                                    Study.deleteMany({'answerId': answerDocs[i].id}, function (errOne, docsThree) {
                                         if (errOne) return console.error(errOne);
                                         console.log("Deleted first" + docsThree);
                                     });
@@ -840,26 +840,35 @@ app.post("/userDel", function (req, response){
                                 return console.log("Could not find answers");
                             } else {
                                 for (var j = 0; j < answerDocs.length; j++) {
-                                    Like.deleteMany({'answerId': answerDocs[j].answerId}, function (errTwo, docsThree) {
-                                        if (errTwo) return console.error(errTwo);
-                                        console.log("Deleted likes" + docsThree);
-                                    });
 
-                                    Study.deleteMany({'answerId': answerDocs[j].answerId}, function (errOne, docsThree) {
-                                        if (errOne) return console.error(errOne);
-                                        console.log("Deleted first" + docsThree);
+                                    Answer.find({'answerId': answerDocs[j].answerId}, function (errTwo, docsThree) {
+                                        if (errTwo) return console.error(errTwo);
+                                        console.log("Deleted answers" + docsThree);
+                                        async function findFive() {
+                                            Like.deleteMany({'answerId': docsThree[0].answerId}, function (errTwo, docsTwo) {
+                                                if (errTwo) return console.error(errTwo);
+                                                console.log("Deleted likes" + docsTwo);
+                                            });
+
+                                            Study.deleteMany({'answerId': docsThree[0].answerId}, function (errOne, docsFour) {
+                                                if (errOne) return console.error(errOne);
+                                                console.log("Deleted first" + docsFour);
+                                            });
+                                        }
+
+                                        findFive().catch(console.dir);
+
+                                        Answer.findOneAndDelete({'answerId': docsThree[0].answerId}, function (errThree, docsFive) {
+                                            if (errTwo) return console.error(errThree);
+                                            console.log("Deleted answer" + docsFive);
+                                        });
                                     });
                                 }
                             }
-                        });
+                        }).clone();
                     }
 
                     findThree().catch(console.dir);
-
-                    Answer.deleteMany({'userId': docs[0].id}, function (errTwo, docsThree) {
-                        if (errTwo) return console.error(errTwo);
-                        console.log("Deleted answers" + docsThree);
-                    });
 
                     Like.deleteMany({'userId': docs[0].id}, function (errTwo, docsThree) {
                         if (errTwo) return console.error(errTwo);
