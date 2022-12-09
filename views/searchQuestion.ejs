@@ -1,38 +1,18 @@
 <%- include('header.ejs') %>
 
 <style>
-    body {
-        background-color: #cdcccf;
-    }
     h1 {
         padding-top: 20px;
-        font-weight: 900;
-    }
-    .study {
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .study-item {
-        width: 600px
-    }
-    .inner {
-        padding-left: 40px;
-    }
-    .center {
-        margin: auto;
-        width: 50%;
-        text-align: center;
-    }
-    .font {
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: 900;
+        font-weight: 800;
     }
 </style>
+
 <div class="center font">
-    <body>
+    <body class="body">
     <form action="/searchQuestions" method="post">
         <div class="inner">
-            <label for="subject" class="form-label">Select a subject</label>
+            <h1>Select a Subject</h1>
+            <label for="subject" class="form-label"></label>
             <select class="form-select" aria-label="Default select example" style = "width: 800px" type="subject" id="subjectList" name="subject">
                 <% for(var i=0; i<docs.length; i++) {%>
                     <option value=<%= docs[i].subject %>><%= docs[i].subject %></option>

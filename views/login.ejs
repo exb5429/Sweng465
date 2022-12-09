@@ -1,80 +1,26 @@
 <%- include('header.ejs') %>
 
-<style>
-    body {
-        background-color: #cdcccf;
-    }
-    .account-btn {
-        width: 400px;
-    }
-    .button {
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .center {
-        margin: auto;
-        width: 50%;
-        text-align: center;
-    }
-    .font {
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: 900;
-    }
-</style>
 
-<body>
-
+<body class="body">
+<div class="center font moveDown">
 <form action = "/login" method="post">
     <label for="username">User Name</label>
+    <br>
     <input type="text" id="username" name="username">
     <br><br>
 
     <label for="password">Password</label>
+    <br>
     <input type="password" id="password" name="password">
     <br><br>
 
-    <input type="checkbox" id="showPass" onclick="showPassword()">
-    <label for="showPass">Show Password</label>
-    <br><br>
-
-    <button type="submit" class="btn btn-primary" onclick="changeAccountBtn()">Login</button>
+    <button type="submit" class="btn btn-primary">Login</button>
 </form>
-
+    <br>
 <a class="btn btn-dark" href="/signup" style="width: 200px; ">Need an account?</a>
+</div>
 
-<!--<div class="container text-center center font" style="padding-top: 150px ">-->
-<!--    <div class="row row-cols-3">-->
-<!--        <div class="col"></div>-->
-<!--        <div class="form-floating mb-3">-->
-<!--            <input type="password" class="form-control" id="floatingPassword" placeholder="Password" style = "width: 400px">-->
-<!--            <label for="floatingPassword">Password</label>-->
-<!--        </div>-->
-<!--        <div class="col"></div>-->
-<!--        <div class="col"></div>-->
-<!--        <div class="form-floating mb-3" >-->
-<!--            <input type="username" class="form-control" id="floatingInput" placeholder="Username" style = "width: 400px" >-->
-<!--            <label for="floatingInput">Username</label>-->
-<!--        </div>-->
-<!--        <div class="col"></div>-->
-<!--        <div class="col"></div>-->
-<!--        <div class="form-floating mb-3" >-->
-<!--            <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" style = "width: 400px; padding-right: 10px " >-->
-<!--            <label for="floatingInput">Email address</label>-->
-<!--        </div>-->
-<!--        <div class="col"></div>-->
-<!--        <div class="col"></div>-->
-<!--        <div class="row row-cols-3">-->
-<!--            <div class="form-floating mb-3">-->
-<!--                <div class="button">-->
-<!--                    <button type="button" class="btn btn-dark account-btn">Login</button>-->
-<!--                </div>-->
-<!--                <div class="button">-->
-<!--                    <button type="button" class="btn btn-dark account-btn">Sign Up</button>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-<!--</div>-->
+
 
 
 

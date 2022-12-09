@@ -1,37 +1,19 @@
 <%- include('header.ejs') %>
 
-<style>
-    body {
-        background-color: #cdcccf;
-    }
-    .account-btn {
-        width: 400px;
-    }
-    .button {
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .center {
-        margin: auto;
-        width: 50%;
-        text-align: center;
-    }
-    .font {
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: 900;
-    }
-</style>
 
-<body>
-<div class="alert alert-danger " role="alert" style = "width: 400px;">
+<body class="body">
+<div class="center font moveDown">
+<div class="center alertPad alert alert-danger " role="alert" style = "width: 400px;">
     Incorrect Login Information!
 </div>
 <form action = "/login" method="post">
     <label for="username">User Name</label>
+    <br>
     <input type="text" id="username" name="username">
     <br><br>
 
     <label for="password">Password</label>
+    <br>
     <input type="password" id="password" name="password">
     <br><br>
 
@@ -43,7 +25,7 @@
 </form>
 
 <a class="btn btn-dark" href="/signup" style="width: 200px; ">Need an account?</a>
-
+</div>
 
 
 

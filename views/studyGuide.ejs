@@ -1,43 +1,21 @@
 <%- include('header.ejs') %>
 
 <style>
-    body {
-        background-color: #cdcccf;
-    }
     h1 {
         padding-top: 20px;
         font-weight: 900;
     }
-    .study {
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .study-item {
-        width: 600px
-    }
-    .inner {
-        padding-left: 40px;
-    }
-    .center {
-        margin: auto;
-        width: 50%;
-        text-align: center;
-    }
-    .font {
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: 900;
-    }
 </style>
 <div class="center font">
-    <body>
+    <body class="body">
     <h1 class="inner">Study Guide</h1>
     <div class="inner">
             <% for(var i=0; i<studyDocs.length; i++) {%>
                     <div class="study">
-                        <ul class="list-group list-group-horizontal">
-                            <li class="list-group-item study-item">
-                                <form action="/findQuestion" method="post">
-                                    <button type="submit" class="btn btn-primary" onclick="changeAccountBtn()" for="questionSelect" name="questionSelect" id="questionSelect" value=<%= studyDocs[i].questionId %>>
+                        <ul class=" list-group list-group-horizontal ">
+                            <li class="list-group-item list-group-item-success study-item">
+                                <form style="padding-top: 20px" action="/findQuestion" method="post">
+                                    <button type="submit" class="btn btn-secondary" for="questionSelect" name="questionSelect" id="questionSelect" value=<%= studyDocs[i].questionId %>>
                                         
                                             <p><%= studyDocs[i].question %></p>
                                             <p><%= studyDocs[i].answer %></p>
@@ -45,9 +23,9 @@
                                     </button>
                                 </form>
                             </li>
-                            <li class="list-group-item study-item">
-                                <form action="/studyDel" method="post">
-                                        <button  name="studyId" type='submit' value='<%= studyDocs[i].id %>' >Delete</button>
+                            <li class="list-group-item list-group-item-success study-item">
+                                <form class="studyGuideForm" action="/studyDel" method="post">
+                                        <button class="btn btn-secondary " name="studyId" type='submit' value='<%= studyDocs[i].id %>' >Delete</button>
                                 </form>
                             </li>
                         </ul>

@@ -1,25 +1,19 @@
 <%- include('header.ejs') %>
 
-<style>
-    .center{
-        text-align: center;
-    }
-
-
-</style>
-<body>
-<h1 class="center"><%= subject %> Questions</h1>
-
+<body class="body">
+<div class="center font">
+<h1 class="questionHeader"><%= subject %> Questions</h1>
 
 <form action="/findQuestion" method="post">
 
     <div class="inner center">
             <% for(var i=0; i<docs.length; i++) {%>
-                <div><b>User:</b> <%= docs[i].username %></div>
-                <button  name="questionSelect" type='submit' value='<%= docs[i].id %>' ><b>Question:</b> <%= docs[i].question %></button>
+                <div class="bigLabels"><b>User:</b> <%= docs[i].username %></div>
+            <br>
+                <button class="btn btn-secondary" name="questionSelect" type='submit' value='<%= docs[i].id %>' ><b>Question:</b> <%= docs[i].question %></button>
 
 
-            <br><br><br>
+            <br><br><br><br>
             <% } %>
 
 
@@ -31,7 +25,7 @@
 
 </form>
 
-
+</div>
 
 </body>
 

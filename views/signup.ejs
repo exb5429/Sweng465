@@ -1,45 +1,23 @@
 <%- include('header.ejs') %>
 
-<style>
-    body {
-        background-color: #cdcccf;
-    }
-    .account-btn {
-        width: 400px;
-    }
-    .button {
-        padding-top: 20px;
-        padding-bottom: 20px;
-    }
-    .center {
-        margin: auto;
-        width: 50%;
-        text-align: center;
-    }
-    .font {
-        font-family: Arial, Helvetica, sans-serif;
-        font-weight: 900;
-    }
-</style>
 
-<body>
 
+<body class="body">
+<div class="center font moveDown">
 <form action = "/signin" method="post">
     <label for="username">User Name</label>
+    <br>
     <input type="text" name="username">
     <br><br>
 
     <label for="password">Password</label>
+    <br>
     <input type="password" id = "password" name="password">
-    <br><br>
-
-    <input type="checkbox" id="showPass" onclick="showNewPassword()">
-    <label for="showPass">Show Password</label>
     <br><br>
 
     <button type="submit" class="btn btn-primary">Sign-Up</button>
 </form>
-
+</div>
 
 
 </body>
