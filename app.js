@@ -154,9 +154,7 @@ app.get("/", function (req, response){
     response.render("homePage", {accountName: currentUser, admin: admin});
 });
 
-app.get("*", function (req, response){
-    response.render("error", {accountName: currentUser, admin: admin});
-});
+
 
 app.listen(3000, function(req,resp){
     console.log("Server Running");
@@ -329,7 +327,7 @@ app.get("/questionGet", function (req, response){
     response.render("questionGet", {accountName: currentUser, admin: admin});
 });
 
-app.get("/getQuestions", function (req, response){
+app.post("/getQuestions", function (req, response){
     const Question = mongoose.model('questions', QuestionSchema);
     var user = req.body.user;
     let test;
@@ -579,7 +577,7 @@ app.get("/userGet", function (req, response){
     response.render("userGet", {accountName: currentUser, admin: admin});
 });
 
-app.get("/getUsers", function (req, response){
+app.post("/getUsers", function (req, response){
     const User = mongoose.model('logins', LoginSchema);
     let test;
 
@@ -1084,5 +1082,10 @@ app.post("/likePost", function (req, response) {
     });
 
 
+});
+
+//----------------------------------Error Page ---------------------------------------
+app.get("*", function (req, response){
+    response.render("error", {accountName: currentUser, admin: admin});
 });
 //--------------------------------- End of Like Related HTTP Methods ----------------------------------------------------------------
