@@ -586,15 +586,37 @@ app.post("/findQuestion", function (req, response){
         //Find all answers
         Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
             //Find all likes
-            Like.find({},{ likes:1,_id:0, __v:0},function(err, likeDocs){
+            Like.find({}, function(err, likeDocs){
                 console.log(likeDocs)
+                const likeShow = [];
+                if (answerDocs[0] == null || answerDocs[0] == undefined) {
+                    console.log("No answers for this question");
+                } else {
+                    for(var i = 0; i < answerDocs.length; i++) {
+                        var likes = 0;
+                        console.log("Answer #" + (i+1));
+                        if (!likeDocs) {
+                            console.log("No likes for this answer");
+                            likeShow.push(0);
+                        } else {
+                            for (var j = 0; j < likeDocs.length; j++) {
+                                if (likeDocs[j].answerId == answerDocs[i].answerId) {
+                                    likes += 1;
+                                }
+                            }
+                            likeShow.push(likes);
+                        }
+                    }
+                }
+
                 response.render("selectedQuestion", {
                     //Hand off info to the HTML page to render
                     accountName: currentUser,
                     questionDocs: questionDocs,
                     answerDocs: answerDocs,
                     admin: admin,
-                    likeDocs: likeDocs
+                    likeDocs: likeDocs,
+                    likes: likeShow
                 })
             })
         });
@@ -1095,70 +1117,126 @@ app.post("/answerDel", function (req, response){
 //Post for giving or deleting a like when button is pressed by user on page
 app.post("/likePost", function (req, response) {
     //Get info from HTML page
-    var questionSelected = currentQuestion;
-    let likeCount
-    var answerSelected = req.body.like;
+    if (loggedIn){
+        var questionSelected = currentQuestion;
+        let likeCount
+        var answerSelected = req.body.like;
 
-    //Refer to collections
-    const Question = mongoose.model('questions', QuestionSchema);
-    const Answer = mongoose.model('answers', answerSchema);
-    const Like = mongoose.model('like', likesSchema);
-    //Count likes
-    Like.countDocuments({answerId: answerSelected}, function(err, count){
-        likeCount = count
-    });
-    //Find question
-    Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, questionDocs) {
-        //Find answers
-        Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
-            //Try to find if like already exists for user
-            Like.find({userId: currentId, answerId: answerSelected},{ _id:0, __v:0},function(err, likeDocs){
-                //If there is a like and button is pressed, delete it
-                if (likeDocs.length){
-                    console.log("delete")
-                    Like.findOneAndDelete({userId: currentId}, function (errThree, deletingLikes) {
+        //Refer to collections
+        const Question = mongoose.model('questions', QuestionSchema);
+        const Answer = mongoose.model('answers', answerSchema);
+        const Like = mongoose.model('like', likesSchema);
+        //Count likes
+        Like.countDocuments({answerId: answerSelected}, function(err, count){
+            likeCount = count
+        });
+        //Find question
+        Question.find({'id': questionSelected}, { _id:0, __v:0},function (err, questionDocs) {
+            //Find answers
+            Answer.find({'questionID': questionSelected},{ _id:0, __v:0},function(err, answerDocs){
+                //Try to find if like already exists for user
+                Like.find({userId: currentId, answerId: answerSelected},function(err, likeDocs){
+                    //If there is a like and button is pressed, delete it
+                    if (likeDocs.length){
+                        console.log("delete")
+                        Like.findOneAndDelete({'userId': currentId, 'answerId': answerSelected}, function (errThree, deletingLikes) {
                             if (errThree) return console.error(errThree);
                             console.log("Deleted " + deletingLikes);
+                            //Need to find like number for each answer after delete
+                            Like.find({},function(err, likeDocsTwo){
+                                console.log(likeDocsTwo)
+
+                                const likeShow = [];
+                                if (answerDocs[0] == null || answerDocs[0] == undefined) {
+                                    console.log("No answers for this question");
+                                } else {
+                                    for(var i = 0; i < answerDocs.length; i++) {
+                                        var likes = 0;
+                                        console.log("Answer #" + (i+1));
+                                        if (!likeDocsTwo) {
+                                            console.log("No likes for this answer");
+                                            likeShow.push(0);
+                                        } else {
+                                            for (var j = 0; j < likeDocsTwo.length; j++) {
+                                                if (likeDocsTwo[j].answerId == answerDocs[i].answerId) {
+                                                    likes += 1;
+                                                }
+                                            }
+                                            likeShow.push(likes);
+                                        }
+                                    }
+                                }
+
+                                //Refresh page
+                                response.render("selectedQuestion", {
+
+                                    accountName: currentUser,
+                                    questionDocs: questionDocs,
+                                    answerDocs: answerDocs,
+                                    admin: admin,
+                                    likeDocs: likeDocs,
+                                    likes: likeShow
+                                })
+                            });
+                        });
+
+                    }  else {
+                        console.log("add")
+                        //If the like does not exist, make a new object for it
+                        let New = likesModel({
+                            likes: (likeCount + 1),
+                            userId: currentId,
+                            answerId: answerSelected
+                        });
+                        //Save it to collection
+                        New.save(function (err) {
+                            if (err) return console.error(err);
+                            //Find new like number for each answer after adding a like
+                            Like.find({},function(errFour, likeDocsTwo) {
+                                console.log(likeDocsTwo)
+
+                                const likeShow = [];
+                                if (answerDocs[0] == null || answerDocs[0] == undefined) {
+                                    console.log("No answers for this question");
+                                } else {
+                                    for (var i = 0; i < answerDocs.length; i++) {
+                                        var likes = 0;
+                                        console.log("Answer #" + (i + 1));
+                                        if (!likeDocsTwo) {
+                                            console.log("No likes for this answer");
+                                            likeShow.push(0);
+                                        } else {
+                                            for (var j = 0; j < likeDocsTwo.length; j++) {
+                                                if (likeDocsTwo[j].answerId == answerDocs[i].answerId) {
+                                                    likes += 1;
+                                                }
+                                            }
+                                            likeShow.push(likes);
+                                        }
+                                    }
+                                }
+
+                                //Refresh page
+                                response.render("selectedQuestion", {
+
+                                    accountName: currentUser,
+                                    questionDocs: questionDocs,
+                                    answerDocs: answerDocs,
+                                    admin: admin,
+                                    likeDocs: likeDocs,
+                                    likes: likeShow
+                                })
+                            });
                         });
                         //Refresh page
-                        response.render("selectedQuestion", {
-
-                            accountName: currentUser,
-                            questionDocs: questionDocs,
-                            answerDocs: answerDocs,
-                            admin: admin,
-                            likeDocs: likeDocs
-                        })
-
-                }  else {
-                    console.log("add")
-                    //If the like does not exist, make a new object for it
-                    let New = likesModel({
-                                likes: (likeCount + 1),
-                                userId: currentId,
-                                answerId: answerSelected
-                            });
-                            //Save it to collection
-                            New.save(function (err) {
-                                if (err) return console.error(err);
-
-                            });
-                            //Refresh page
-                    response.render("selectedQuestion", {
-
-                        accountName: currentUser,
-                        questionDocs: questionDocs,
-                        answerDocs: answerDocs,
-                        admin: admin,
-                        likeDocs: likeDocs
-                    })
-                }
-
-            })
+                    }
+                });
+            });
         });
-    });
-
-
+    }
+    else {
+        response.render("login", {accountName: currentUser, admin: admin});
+    }
 });
 
 //----------------------------------Error Page ---------------------------------------

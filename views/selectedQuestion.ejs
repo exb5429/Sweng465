@@ -12,39 +12,39 @@
 
 <div class="center font">
     <div class="bigLabels">
-    <p><b>User:</b> <%- questionDocs[0].username %></p>
-    <p><b>Asks:</b> <%- questionDocs[0].question %></p>
+        <p><b>User:</b> <%- questionDocs[0].username %></p>
+        <p><b>Asks:</b> <%- questionDocs[0].question %></p>
     </div>
 
-<h2>Answers:</h2>
+    <h2>Answers:</h2>
     <br>
 
 
-<% for(var i=0; i<answerDocs.length; i++) {%>
-    <form action="/addStudy" method="post">
-        <div>
-            <p><b>User:</b> <%= answerDocs[i].user %></p>
-            <p><b>Answer:</b> <%= answerDocs[i].answer %></p>
-        </div>
-        <button  class="btn btn-secondary" name="studySelect" type='submit' value='<%= answerDocs[i].answerId %>' >Add this answer and question to study guide.</button>
+    <% for(var i=0; i<answerDocs.length; i++) {%>
+        <form action="/addStudy" method="post">
+            <div>
+                <p><b>User:</b> <%= answerDocs[i].user %></p>
+                <p><b>Answer:</b> <%= answerDocs[i].answer %></p>
+            </div>
+            <button  class="btn btn-secondary" name="studySelect" type='submit' value='<%= answerDocs[i].answerId %>' >Add this answer and question to study guide.</button>
+            <br>
+        </form>
+        <form action = "/likePost" method="Post">
+            <label for="like"><%= likes[i] %> Likes</label><br>
+            <button  class="btn btn-secondary" type="submit" value='<%= answerDocs[i].answerId %>' id="like" name="like">Like</button>
+            <br><br><br>
+        </form>
+
+    <% } %>
+
+    <form action = "/addAnswer" method="Post">
+        <label for="answer">Post an Answer</label>
         <br>
+        <input type="text" id="answer" name="answer">
+        <br><br>
+
+        <button type="submit" class="btn btn-primary" id="questionId" name="questionId" value='<%= questionDocs[0].id %>'>Post Answer</button>
     </form>
-    <form action = "/likePost" method="Post">
-        <label for="like"># Likes</label><br>
-        <button  class="btn btn-secondary" type="submit" value='<%= answerDocs[i].answerId %>' id="like" name="like">Like</button>
-        <br><br><br>
-    </form>
-
-<% } %>
-
-<form action = "/addAnswer" method="Post">
-    <label for="answer">Post an Answer</label>
-    <br>
-    <input type="text" id="answer" name="answer">
-    <br><br>
-
-    <button type="submit" class="btn btn-primary" id="questionId" name="questionId" value='<%= questionDocs[0].id %>'>Post Answer</button>
-</form>
 
 
 
