@@ -7,5 +7,26 @@
     <button type="submit" class="btn btn-primary">Get Subject</button>
 </form>
 
+<div class="inner center">
+    <%
+    if (questionDocs !== undefined){
+    for(var i=0; i<questionDocs.length; i++){%>
+        <div class="bigLabels"><b>Question:</b> <%= questionDocs[i] %></div>
+        <br>
+
+    <%}
+    } %>
+
+        <%
+        if (answerDocs !== undefined){
+        for(var i=0; i<answerDocs.length; i++){%>
+            <div class="bigLabels"><b>Answers:</b> <%= answerDocs[i] %></div>
+            <br>
+
+        <%}
+        } %>
+
+</div>
+
 </body>
 <%- include('footer.ejs') %>

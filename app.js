@@ -353,7 +353,8 @@ app.get("/postQuestion", function (req, response){
 
 //Question get admin page
 app.get("/questionGet", function (req, response){
-    response.render("questionGet", {accountName: currentUser, admin: admin});
+    let docs
+    response.render("questionGet", {accountName: currentUser, admin: admin, docs: docs});
 });
 //Post for finding questions based on the user inputted
 app.post("/getQuestions", function (req, response){
@@ -365,7 +366,7 @@ app.post("/getQuestions", function (req, response){
 
         test = docs;
         console.log(test);
-        response.render("homePage", {accountName: currentUser,
+        response.render("questionGet", {accountName: currentUser,
             docs: test,
             admin: admin})
     });
@@ -619,7 +620,8 @@ app.get("/loginFail", function (req, response){
 });
 //Admin page for user GET
 app.get("/userGet", function (req, response){
-    response.render("userGet", {accountName: currentUser, admin: admin});
+    let docs
+    response.render("userGet", {accountName: currentUser, admin: admin, docs: docs});
 });
 //GET method for getting list of all users in collection
 app.post("/getUsers", function (req, response){
@@ -630,7 +632,7 @@ app.post("/getUsers", function (req, response){
 
         test = docs;
         console.log(test);
-        response.render("homePage", {accountName: currentUser,
+        response.render("userGet", {accountName: currentUser,
             docs: test,
             admin: admin})
     });
@@ -872,7 +874,8 @@ app.get("/subjectNo", function (req, response){
 });
 //Admin subject get page
 app.get("/subjectGet", function (req, response){
-    response.render("subjectGet", {accountName: currentUser, admin: admin});
+    let docs
+    response.render("subjectGet", {accountName: currentUser, admin: admin, docs: docs});
 });
 //Admin subject post page
 app.get("/subjectPost", function (req, response){
@@ -891,7 +894,7 @@ app.get("/getSubjects", function (req, response){
 
        test = docs;
        console.log(test);
-       response.render("homePage", {accountName: currentUser,
+       response.render("subjectGet", {accountName: currentUser,
            docs: test,
            admin: admin})
     });
@@ -935,7 +938,8 @@ app.post("/delSubject", function (req, response){
 //-------------------------------- Answer Related HTTP Methods -----------------------------------------------------------
 //Admin answer get page
 app.get("/answerGet", function (req, response){
-    response.render("answerGet", {accountName: currentUser, admin: admin});
+    let answerDocs, questionDocs
+    response.render("answerGet", {accountName: currentUser, admin: admin, answerDocs: answerDocs, questionDocs: questionDocs});
 });
 //Admin answer post page
 app.get("/answerPost", function (req, response){
@@ -944,22 +948,25 @@ app.get("/answerPost", function (req, response){
 //Admin POST for getting answers based off of questionId
 app.post("/getAnswers", function (req, response){
     const Answer = mongoose.model('answers', answerSchema);
+    const Question = mongoose.model('questions', QuestionSchema);
     var questionId = req.body.questionId;
     //Find all answers to that question
-    Answer.find({ 'questionID': questionId}, { _id:0, __v:0} ,function (err, docs) {
-        console.log(docs)
+    Answer.find({ 'questionID': questionId}, { _id:0, __v:0} ,function (err, answerDocs) {
+        console.log(answerDocs)
+        Question.find({ 'id': questionId}, { id: 0, askId:0, username:0, subject:0,_id:0, __v:0} ,function (err, questionDocs) {
+            console.log(questionDocs)
+            response.render("answerGet", {accountName: currentUser, admin: admin, answerDocs: answerDocs, questionDocs: questionDocs})
+        });
     });
 
-    const Question = mongoose.model('questions', QuestionSchema);
+
 
     //Find that question
-    Question.find({ 'id': questionId}, { id: 0, askId:0, username:0, subject:0,_id:0, __v:0} ,function (err, docs) {
-        console.log(docs)
-    });
 
 
 
-    response.render("homePage", {accountName: currentUser, admin: admin})
+
+
 });
 //Post for adding an answer, when user puts in an answer
 app.post("/addAnswer", function (req, response){

@@ -6,6 +6,16 @@
     <input type="text" id="user" name="user">
     <button type="submit" class="btn btn-primary">Get Questions</button>
 </form>
+<div class="inner center">
+    <%
+    if (docs !== undefined){
+    for(var i=0; i<docs.length; i++){%>
+        <div class="bigLabels"><b>Question:</b> <%= docs[i] %></div>
+        <br>
+
+    <%}
+    } %>
+</div>
 
 </body>
 <%- include('footer.ejs') %>

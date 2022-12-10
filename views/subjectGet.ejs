@@ -5,6 +5,16 @@
 
     <button type="submit" class="btn btn-primary">Get Subject</button>
 </form>
+    <div class="inner center">
+        <%
+        if (docs !== undefined){
+            for(var i=0; i<docs.length; i++){%>
+            <div class="bigLabels"><b>Subject:</b> <%= docs[i].subject %></div>
+            <br>
+
+        <%}
+        } %>
+    </div>
 
 </body>
 <%- include('footer.ejs') %>

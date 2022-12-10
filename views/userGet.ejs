@@ -5,5 +5,15 @@
     <button type="submit" class="btn btn-primary">Get Users</button>
 </form>
 
+<div class="inner center">
+    <%
+    if (docs !== undefined){
+    for(var i=0; i<docs.length; i++){%>
+        <div class="bigLabels"><b>User:</b> <%= docs[i] %></div>
+        <br>
+
+    <%}
+    } %>
+</div>
 </body>
 <%- include('footer.ejs') %>
